@@ -19,7 +19,7 @@ install_github("Zinabuf/GCIM-GWEIS-Z")
 ~~~
 library(GCIM-GWEIS-Z)
 ~~~
-# quantitative trait
+# Quantitative trait
 
 ~~~
 # compute GWAS of the Exposure variable
