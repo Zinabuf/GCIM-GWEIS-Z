@@ -15,13 +15,20 @@ install_github("Zinabuf/GCIM-GWEIS-Z")
 ~~~
 
 ## 2. Load the library
-
+plink_path <- "<plink_path>/plink2"
+ldsc_path <- "<ldsc_path>/ldsc.py"
+munge_path <- "<munge_path>/munge_sumstats.py"
+plink_path <- "<plink_path>/plink2"
 ~~~
 library(GCIM-GWEIS-Z)
 ~~~
 # Quantitative trait
 
 ~~~
+#load library
+library(GCIM-GWEIS-Z)
+# specify the file paths
+
 # compute GWAS of the Exposure variable
 gwas <- q_gwas(plink_path, dis_snp, qp_dis_cov)
 #compute PRS of Exposure variables
