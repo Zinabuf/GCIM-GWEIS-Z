@@ -19,3 +19,43 @@ install_github("Zinabuf/GCIM-GWEIS-Z")
 ~~~
 library(GCIM-GWEIS-Z)
 ~~~
+# quantitative trait
+
+~~~
+# compute GWAS of the Exposure variable
+gwas <- q_gwas(plink_path, dis_snp, qp_dis_cov)
+#compute PRS of Exposure variables
+prs <- prs_scores(plink_path, tar_snp, score_file)
+# Merged PRS values with covariate files
+replace_covariate_with_prs(
+  qp_dis_cov,
+  prs_file,
+  out_name = "qp_dis_cov_prs.txt"
+)
+#compute GWEIS analyses
+gweis <- q_gweis(
+  plink_path,
+  dis_snp,
+  qp_dis_phen,
+  qp_dis_cov,
+  int_covar_index = 1,
+  out_file = "gcim_prs_int.txt"
+)
+# compute heritability for the interaction components using LDSC
+ldsc <- run_ldsc_gcim(
+  ldsc_path,
+  munge_path,
+  gcim_file,
+  hm3_snplist,
+  ref_ld_chr,
+  chunksize = 1e+05
+)
+# Adjusting z-score values of GWEIS results.
+gcim-gweis-z <-gcim_z_adjust(
+  glm_file,
+  intercept_file,
+  int_term = "ADDxCOVAR1",
+  out_file = "gcim_z_adjusted.txt"
+)
+write.table(gcim-gweis-z, "GCIM-GWEIS-Z.txt", quote = F, row.names = F, col.names = T, sep = " ")
+ 
