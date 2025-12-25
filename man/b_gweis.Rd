@@ -6,61 +6,39 @@
 \usage{
 b_gweis(
   plink_path,
-  dis_snp,
-  bp_dis_phen,
-  bp_dis_cov,
+  tar_mydata,
+  tar_pheno_file,
+  tar_covar_file,
   int_covar_index = 1,
-  out_file = "gcim_prs_b_int.txt"
+  out_file = "gcim_prs_b_int.txt",
+  out_prefix = "b_gweis",
+  threads = 1
 )
 }
 \arguments{
-\item{plink_path}{Character. Path to the PLINK (v2.0) executable.}
+\item{plink_path}{Character. Path to PLINK2 executable.}
 
-\item{dis_snp}{Character. Prefix of PLINK binary files for discovery data.}
+\item{tar_mydata}{Character. Prefix of PLINK binary files (.bed/.bim/.fam).}
 
-\item{bp_dis_phen}{Character. File path to phenotype file (FID IID PHENO).
-Binary phenotype should be coded as 0/1 or 1/2.}
+\item{tar_pheno_file}{Character. Phenotype file with columns: FID IID PHENO
+(binary PHENO in column 3; typically 0/1 or 1/2).}
 
-\item{bp_dis_cov}{Character. File path to covariate file with PRS
-(typically output from \code{replace_covariate_with_prs()}).
-Format: FID IID COVAR1 COVAR2 ... COVARn}
+\item{tar_covar_file}{Character. Covariate file with columns: FID IID COVAR1...
+(COVAR1 is column 3, used as COVAR1 in PLINK naming).}
 
-\item{int_covar_index}{Integer. Covariate column index for interaction
-(for example, 1 for ADDxCOVAR1). Default is 1.}
+\item{int_covar_index}{Integer. Covariate index for interaction term:
+1 -> ADDxCOVAR1, 2 -> ADDxCOVAR2, ...}
 
-\item{out_file}{Character. Name of GCIM interaction output file.
-Default is "gcim_prs_b_int.txt".}
+\item{out_file}{Character. Name of GCIM interaction output file.}
+
+\item{out_prefix}{Character. PLINK output prefix inside tmp_dir (default "b_gweis").}
+
+\item{threads}{Integer. Optional threads for PLINK (default 1).}
 }
 \value{
-A list containing file paths to GWEIS outputs stored in a temporary
-directory:
-\describe{
-\item{glm_file}{Path to PLINK .glm.logistic.hybrid file}
-\item{gcim_file}{Path to GCIM-formatted interaction file}
-\item{tmp_dir}{Temporary directory used by the function}
-\item{log_file}{Path to PLINK log file}
-\item{n_interactions}{Number of SNPs with interaction results}
-\item{interaction_term}{Name of the interaction term tested}
-}
+A list with file paths and metadata.
 }
 \description{
-This function runs a PLINK logistic GWEIS (SNP by covariate interaction)
-and outputs a GCIM-formatted interaction file containing SNP position,
-alleles, interaction effect size on the log odds scale, p value, and
-sample size. All outputs are saved to a temporary directory.
-}
-\details{
-This function performs the following steps:
-\enumerate{
-\item Validates input files (PLINK binaries, phenotype, covariates)
-\item Creates a temporary directory for all outputs
-\item Runs PLINK logistic GWEIS with an interaction term
-\item Extracts interaction effects (ADDxCOVARn)
-\item Converts odds ratios to log odds for BETA values
-\item Formats results for GCIM-GWEIS-Z analysis
-\item Writes a GCIM-formatted file with a header line
-}
-
-The GCIM output file format is:
-order snpid chr bp a1 a2 beta pval N
+Runs PLINK2 logistic regression with SNP x covariate interaction and exports
+interaction results (ADDxCOVARk) in GCIM format.
 }

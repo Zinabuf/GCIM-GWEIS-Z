@@ -5,19 +5,17 @@
 \title{Replace the third column with PRS}
 \usage{
 replace_covariate_with_prs(
-  qp_dis_cov,
+  dis_cov_file,
   prs_file,
-  out_name = "qp_dis_cov_prs.txt"
+  out_name = "tar_cov_prs.txt"
 )
 }
 \arguments{
-\item{qp_dis_cov}{Character. Path to the original phenotype and covariate file.
-Must contain columns FID and IID, and at least one additional column.}
+\item{dis_cov_file}{Character. Path to phenotype/covariate file (FID IID + >=1 columns).}
 
-\item{prs_file}{Character. Path to PRS file from \code{prs_scores()}.
-Must contain columns FID, IID, and PRS.}
+\item{prs_file}{Character. Path to PRS file with columns FID, IID, PRS.}
 
-\item{out_name}{Character. Name for output file (default: "qp_dis_cov_prs.txt").}
+\item{out_name}{Character. Output filename (default: "tar_cov_prs.txt").}
 }
 \value{
 A list with:
@@ -30,21 +28,6 @@ A list with:
 }
 }
 \description{
-This function merges PRS values into a phenotype and covariate file and
-replaces the third column (the quantitative phenotype or interaction covariate)
-with the computed PRS. This is used in the GCIM-GWEIS-Z pipeline to prepare
-data for gene by environment interaction testing.
-}
-\details{
-This function performs the following steps:
-\enumerate{
-\item Validates input files exist and have required columns
-\item Reads phenotype and covariate file and PRS file
-\item Merges datasets by FID and IID
-\item Replaces column 3 with PRS values
-\item Saves output to a temporary directory
-}
-
-The output file maintains the original column structure but with PRS
-substituted into position 3, ready for analysis.
+Merges PRS values into a phenotype/covariate file and replaces column 3 with PRS.
+Output is written to a temporary directory.
 }

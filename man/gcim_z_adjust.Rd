@@ -12,46 +12,19 @@ gcim_z_adjust(
 )
 }
 \arguments{
-\item{glm_file}{Character. PLINK GWEIS output file
-(.glm.linear or .glm.logistic.hybrid) from \code{q_gweis()} or \code{b_gweis()}.}
+\item{glm_file}{Character. PLINK GWEIS output file (.glm.linear or .glm.logistic*).}
 
-\item{intercept_file}{Character. File containing the LDSC intercept value
-from \code{run_ldsc_gcim()}.}
+\item{intercept_file}{Character. File containing LDSC intercept value from run_ldsc_gcim().}
 
-\item{int_term}{Character. Interaction term name to extract
-(default is "ADDxCOVAR1").}
+\item{int_term}{Character. Interaction term to extract (e.g., "ADDxCOVAR1").}
 
-\item{out_file}{Character. Output file name
-(default is "gcim_z_adjusted.txt").}
+\item{out_file}{Character. Output filename (default "gcim_z_adjusted.txt").}
 }
 \value{
-A list containing adjusted results stored in a temporary directory:
-\describe{
-\item{adjusted_data}{Data frame with adjusted Z scores and p values}
-\item{output_file}{Path to saved adjusted results file}
-\item{tmp_dir}{Temporary directory used by the function}
-\item{intercept_used}{LDSC intercept value used for correction}
-\item{correction_factor}{Square root of the intercept used as the divisor}
-\item{n_snps}{Number of SNPs in adjusted results}
-\item{n_sig_original}{Number of significant SNPs before correction (p < 0.05)}
-\item{n_sig_adjusted}{Number of significant SNPs after correction (p < 0.05)}
-}
+A list with adjusted results and output paths.
 }
 \description{
-This function applies LDSC intercept correction to SNP by covariate
-interaction test statistics and computes adjusted Z scores and p values.
-All outputs are saved to a temporary directory.
-}
-\details{
-This function performs the following steps:
-\enumerate{
-\item Reads PLINK GWEIS results and extracts the interaction term
-\item Reads the LDSC intercept from file
-\item Applies Z score correction: Z_adj = Z_original / sqrt(intercept)
-\item Computes two sided adjusted p values
-\item Saves corrected results to a temporary directory
-}
-
-The correction adjusts for inflation using the LDSC intercept. The adjusted
-Z score is computed as Z_adj = Z_original / sqrt(intercept).
+Applies LDSC intercept correction to interaction test statistics:
+Z_adj = Z_original / sqrt(intercept)
+and recomputes two-sided p-values.
 }

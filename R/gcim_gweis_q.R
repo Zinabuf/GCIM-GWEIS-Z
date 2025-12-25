@@ -1,90 +1,58 @@
 #' Perform GWEIS for a quantitative phenotype and generate a GCIM input file
 #'
-#' This function runs a PLINK GWEIS (SNP by covariate interaction) and
-#' outputs a GCIM-formatted interaction file containing SNP position,
-#' alleles, interaction effect size, p value, and sample size.
-#' All outputs are saved to a temporary directory.
+#' Runs PLINK2 linear regression with SNP x covariate interaction and exports
+#' interaction results (ADDxCOVARk) in GCIM format.
 #'
-#' @param plink_path Character. Path to the PLINK (v2.0) executable.
-#' @param dis_snp Character. Prefix of PLINK binary files for discovery data.
-#' @param qp_dis_phen Character. File path to phenotype file (FID IID PHENO).
-#' @param qp_dis_cov Character. File path to covariate file with PRS
-#'   (typically output from \code{replace_covariate_with_prs()}).
-#'   Format: FID IID COVAR1 COVAR2 ... COVARn
-#' @param int_covar_index Integer. Covariate column index for interaction
-#'   (for example, 1 for ADDxCOVAR1). Default is 1.
+#' @importFrom utils read.table write.table
+#' @importFrom stats complete.cases
+#' @param plink_path Character. Path to PLINK2 executable.
+#' @param tar_mydata Character. Prefix of PLINK binary files (.bed/.bim/.fam).
+#' @param tar_pheno_file Character. Phenotype file with columns: FID IID PHENO
+#'   (PHENO should be in column 3).
+#' @param tar_covar_file Character. Covariate file with columns: FID IID COVAR1...
+#'   (COVAR1 is column 3, used as COVAR1 in PLINK naming).
+#' @param int_covar_index Integer. Covariate index for interaction term:
+#'   1 -> ADDxCOVAR1, 2 -> ADDxCOVAR2, ...
 #' @param out_file Character. Name of GCIM interaction output file.
-#'   Default is "gcim_prs_int.txt".
+#' @param out_prefix Character. PLINK output prefix inside tmp_dir (default "q_gweis").
+#' @param threads Integer. Optional threads for PLINK (default 1).
 #'
-#' @return A list containing file paths to GWEIS outputs stored in a temporary
-#' directory:
-#' \describe{
-#'   \item{glm_file}{Path to PLINK .glm.linear file}
-#'   \item{gcim_file}{Path to GCIM-formatted interaction file}
-#'   \item{tmp_dir}{Temporary directory used by the function}
-#'   \item{log_file}{Path to PLINK log file}
-#'   \item{n_interactions}{Number of SNPs with interaction results}
-#'   \item{interaction_term}{Name of the interaction term tested}
-#' }
-#'
-#' @details
-#' This function performs the following steps:
-#' \enumerate{
-#'   \item Validates input files (PLINK binaries, phenotype, covariates)
-#'   \item Creates a temporary directory for all outputs
-#'   \item Runs PLINK GWEIS with an interaction term
-#'   \item Extracts interaction effects (ADDxCOVARn)
-#'   \item Formats results for GCIM-GWEIS-Z analysis
-#'   \item Writes a GCIM-formatted file with a header line
-#' }
-#'
-#' The GCIM output file format is:
-#' order snpid chr bp a1 a2 beta pval N
-#'
+#' @return A list with file paths and metadata.
 #' @export
 q_gweis <- function(plink_path,
-                    dis_snp,
-                    qp_dis_phen,
-                    qp_dis_cov,
+                    tar_mydata,
+                    tar_pheno_file,
+                    tar_covar_file,
                     int_covar_index = 1,
-                    out_file = "gcim_prs_int.txt") {
+                    out_file = "gcim_prs_int.txt",
+                    out_prefix = "q_gweis",
+                    threads = 1) {
 
   ## ---- Input validation ----
-  if (!file.exists(plink_path)) {
-    stop("PLINK executable not found at: ", plink_path)
+  if (!file.exists(plink_path)) stop("PLINK executable not found at: ", plink_path)
+
+  for (ext in c(".bed", ".bim", ".fam")) {
+    if (!file.exists(paste0(tar_mydata, ext))) {
+      stop("Missing PLINK file: ", paste0(tar_mydata, ext))
+    }
   }
 
-  if (!file.exists(paste0(dis_snp, ".bed")) ||
-      !file.exists(paste0(dis_snp, ".bim")) ||
-      !file.exists(paste0(dis_snp, ".fam"))) {
-    stop("PLINK binary files (.bed/.bim/.fam) not found with prefix: ", dis_snp)
-  }
-
-  if (!file.exists(qp_dis_phen)) {
-    stop("Phenotype file not found: ", qp_dis_phen)
-  }
-
-  if (!file.exists(qp_dis_cov)) {
-    stop("Covariate file not found: ", qp_dis_cov)
-  }
+  if (!file.exists(tar_pheno_file)) stop("Phenotype file not found: ", tar_pheno_file)
+  if (!file.exists(tar_covar_file)) stop("Covariate file not found: ", tar_covar_file)
 
   if (!is.numeric(int_covar_index) || length(int_covar_index) != 1 ||
       is.na(int_covar_index) || int_covar_index < 1) {
     stop("int_covar_index must be a positive integer")
   }
 
-  ## ---- Check covariate file has enough columns ----
+  ## ---- Check covariate header / count ----
   cov_header <- tryCatch(
-    {
-      read.table(qp_dis_cov,
-                 header = TRUE,
-                 nrows = 1,
-                 stringsAsFactors = FALSE,
-                 check.names = FALSE)
-    },
-    error = function(e) {
-      stop("Failed to read covariate file header: ", qp_dis_cov, "\n", e$message)
-    }
+    utils::read.table(tar_covar_file,
+               header = TRUE,
+               nrows = 1,
+               stringsAsFactors = FALSE,
+               check.names = FALSE),
+    error = function(e) stop("Failed to read covariate file header: ", tar_covar_file, "\n", e$message)
   )
 
   if (!all(c("FID", "IID") %in% names(cov_header))) {
@@ -92,182 +60,131 @@ q_gweis <- function(plink_path,
   }
 
   n_covars <- ncol(cov_header) - 2
-  if (n_covars < 1) {
-    stop("Covariate file must contain at least one covariate column after FID and IID")
-  }
-
+  if (n_covars < 1) stop("Covariate file must contain at least one covariate after FID and IID")
   if (int_covar_index > n_covars) {
-    stop(
-      "int_covar_index (", int_covar_index, ") exceeds number of covariates (",
-      n_covars, ") in file: ", qp_dis_cov
-    )
+    stop("int_covar_index (", int_covar_index, ") exceeds number of covariates (", n_covars, ")")
   }
 
-  ## ---- Create function-specific temporary directory ----
-  tmp_dir <- file.path(
-    tempdir(),
-    paste0("q_gweis_", format(Sys.time(), "%Y%m%d_%H%M%S"))
-  )
-
-  if (!dir.exists(tmp_dir)) {
-    dir.create(tmp_dir, recursive = TRUE)
-  }
+  ## ---- Temp dir ----
+  tmp_dir <- file.path(tempdir(), paste0("q_gweis_", format(Sys.time(), "%Y%m%d_%H%M%S")))
+  dir.create(tmp_dir, recursive = TRUE, showWarnings = FALSE)
   message("Output directory: ", tmp_dir)
 
-  out_prefix <- file.path(tmp_dir, "q_gweis")
+  out_pref <- file.path(tmp_dir, out_prefix)
+  log_file <- paste0(out_pref, ".log")
 
-  ## ---- Build --parameters list (explicit indices) ----
-  # PLINK2 parameter indices: 1 is ADD (main), 2.. are covariates, plus interaction terms when --glm interaction
-  # We request: ADD, all covariates, and their interactions. The safest approach is to request a wide set:
-  # 1,2,3,...,(2 + n_covars) for main effects and covariates, and let filtering on TEST do the rest.
-  param_max <- 2 + n_covars
-  param_list <- paste(seq_len(param_max), collapse = ",")
-
-  ## ---- Run PLINK GWEIS ----
-  message("Step 1 of 3: Running PLINK GWEIS with interaction term")
-
+  ## ---- Run PLINK2 GWEIS ----
   int_term <- paste0("ADDxCOVAR", int_covar_index)
-  message("  Interaction term: ", int_term)
+  message("Step 1 of 3: Running PLINK GWEIS (interaction term: ", int_term, ")")
 
-  cmd <- paste(
-    shQuote(plink_path),
-    "--bfile", shQuote(dis_snp),
-    "--pheno", shQuote(qp_dis_phen),
-    "--glm interaction",
-    "--covar", shQuote(qp_dis_cov),
-    "--parameters", shQuote(param_list),
+  args <- c(
+    "--bfile", tar_mydata,
+    "--pheno", tar_pheno_file,
+    "--pheno-col-nums", "3",
+    "--covar", tar_covar_file,
+    "--covar-col-nums", "3-n",
+    "--glm", "interaction", "hide-covar",
     "--allow-no-sex",
     "--covar-variance-standardize",
-    "--out", shQuote(out_prefix)
+    "--pheno-variance-standardize",
+    "--threads", as.character(threads),
+    "--out", out_pref
   )
 
-  exit_code <- system(cmd, ignore.stdout = FALSE, ignore.stderr = FALSE)
-
-  if (exit_code != 0) {
-    warning(
-      "PLINK exited with non-zero status. Check log file: ",
-      paste0(out_prefix, ".log")
-    )
+  exit_code <- suppressWarnings(system2(plink_path, args = args))
+  if (!is.null(exit_code) && exit_code != 0) {
+    warning("PLINK exited with non-zero status (", exit_code, "). Check: ", log_file)
   }
 
-  ## ---- Locate GWEIS results ----
-  message("Step 2 of 3: Reading GWEIS results")
-
-  glm_file <- paste0(out_prefix, ".PHENO1.glm.linear")
-  log_file <- paste0(out_prefix, ".log")
-
-  if (!file.exists(glm_file)) {
-    stop(
-      "GWEIS output file not found: ", glm_file,
-      "\nCheck PLINK log at: ", log_file
-    )
+  ## ---- Locate GWEIS results robustly ----
+  message("Step 2 of 3: Locating GWEIS output")
+  glm_files <- list.files(tmp_dir, pattern = "\\.glm\\.linear$", full.names = TRUE)
+  if (length(glm_files) == 0) {
+    stop("No .glm.linear output found in: ", tmp_dir, "\nCheck PLINK log at: ", log_file)
   }
+  glm_file <- glm_files[grepl("PHENO1", basename(glm_files))]
+  if (length(glm_file) == 0) glm_file <- glm_files[1]
+  glm_file <- glm_file[1]
 
   ## ---- Read GWEIS results ----
   gweis_res <- tryCatch(
-    {
-      read.table(
-        glm_file,
-        header = TRUE,
-        stringsAsFactors = FALSE,
-        comment.char = ""
-      )
-    },
-    error = function(e) {
-      stop("Failed to read GWEIS results from ", glm_file, "\n", e$message)
-    }
+    utils::read.table(glm_file, header = TRUE, stringsAsFactors = FALSE, comment.char = "", check.names = FALSE),
+    error = function(e) stop("Failed to read GWEIS results from ", glm_file, "\n", e$message)
   )
 
-  if (!"TEST" %in% colnames(gweis_res)) {
-    stop("Column 'TEST' not found in GWEIS results")
+  if (!"TEST" %in% names(gweis_res)) stop("Column 'TEST' not found in GWEIS output: ", glm_file)
+
+  ## ---- Extract interaction effects ----
+  message("Step 3 of 3: Extracting interaction effects (", int_term, ")")
+
+  tests <- unique(gweis_res$TEST)
+  gw <- gweis_res[gweis_res$TEST == int_term, , drop = FALSE]
+
+  if (nrow(gw) == 0) {
+    stop("No rows found for interaction term: ", int_term, "\nAvailable interaction terms: ",
+         paste(grep("^ADDxCOVAR", tests, value = TRUE), collapse = ", "))
   }
 
-  ## ---- Extract interaction term ----
-  message("Step 3 of 3: Extracting interaction effects")
-
-  available_tests <- unique(gweis_res$TEST)
-  message("  Available TEST values: ", paste(available_tests, collapse = ", "))
-
-  GWAS <- gweis_res[gweis_res$TEST == int_term, ]
-
-  if (nrow(GWAS) == 0) {
-    stop(
-      "No interaction term found: ", int_term, "\n",
-      "Available interaction terms: ",
-      paste(grep("ADDx", available_tests, value = TRUE), collapse = ", ")
-    )
+  ## ---- Column mapping (robust to PLINK naming differences) ----
+  # Required core columns:
+  core_needed <- c("ID", "#CHROM", "POS", "A1", "BETA", "P", "OBS_CT")
+  missing_core <- setdiff(core_needed, names(gw))
+  if (length(missing_core) > 0) {
+    stop("Missing required columns in GWEIS results: ",
+         paste(missing_core, collapse = ", "),
+         "\nColumns available: ", paste(names(gw), collapse = ", "))
   }
 
-  required_cols <- c("ID", "#CHROM", "POS", "A1", "REF", "BETA", "P", "OBS_CT")
-  missing_cols <- setdiff(required_cols, colnames(GWAS))
-  if (length(missing_cols) > 0) {
-    stop(
-      "Missing required columns in GWEIS results: ",
-      paste(missing_cols, collapse = ", ")
-    )
+  # Second allele column may be REF, A2, or ALT depending on output; try common options
+  a2_col <- NULL
+  for (cand in c("A2", "REF", "ALT", "ALT1")) {
+    if (cand %in% names(gw)) { a2_col <- cand; break }
+  }
+  if (is.null(a2_col)) {
+    stop("Could not find a second allele column (tried A2/REF/ALT/ALT1). Columns: ",
+         paste(names(gw), collapse = ", "))
   }
 
-  ## ---- Prepare GCIM-formatted output ----
+  ## ---- Build GCIM data ----
   gcim_data <- data.frame(
-    order = seq_len(nrow(GWAS)),
-    snpid = GWAS$ID,
-    chr   = GWAS$`#CHROM`,
-    bp    = GWAS$POS,
-    a1    = GWAS$A1,
-    a2    = GWAS$REF,
-    beta  = GWAS$BETA,
-    pval  = GWAS$P,
-    N     = GWAS$OBS_CT,
+    order = seq_len(nrow(gw)),
+    snpid = gw$ID,
+    chr   = gw$`#CHROM`,
+    bp    = gw$POS,
+    a1    = gw$A1,
+    a2    = gw[[a2_col]],
+    beta  = gw$BETA,
+    pval  = gw$P,
+    N     = gw$OBS_CT,
     stringsAsFactors = FALSE
   )
 
-  ## ---- Filter invalid results ----
-  complete_cases <- complete.cases(gcim_data)
-  if (!all(complete_cases)) {
-    n_removed <- sum(!complete_cases)
-    warning("Removing ", n_removed, " SNPs with missing values")
-    gcim_data <- gcim_data[complete_cases, ]
+  # Drop incomplete
+  keep <- stats::complete.cases(gcim_data)
+  if (!all(keep)) {
+    warning("Removing ", sum(!keep), " SNPs with missing values")
+    gcim_data <- gcim_data[keep, , drop = FALSE]
   }
+  if (nrow(gcim_data) == 0) stop("No valid interaction results after filtering missing values.")
 
-  if (nrow(gcim_data) == 0) {
-    stop("No valid interaction results after filtering")
-  }
-
-  ## ---- Write GCIM-formatted file ----
+  ## ---- Write GCIM file ----
   gcim_file <- file.path(tmp_dir, out_file)
-
   writeLines("order snpid chr bp a1 a2 beta pval N", con = gcim_file)
+  utils::write.table(gcim_data, file = gcim_file, quote = FALSE, col.names = FALSE,
+              row.names = FALSE, sep = " ", append = TRUE)
 
-  write.table(
-    gcim_data,
-    file = gcim_file,
-    quote = FALSE,
-    col.names = FALSE,
-    row.names = FALSE,
-    sep = " ",
-    append = TRUE
-  )
-
-  ## ---- Summary output ----
-  message("GWEIS completed successfully")
-  message("  Total SNPs tested: ", nrow(gweis_res))
-  message("  Interaction effects extracted: ", nrow(gcim_data))
+  message("GWEIS completed")
+  message("  GLM file: ", glm_file)
   message("  Interaction term: ", int_term)
-  message("  Results saved to: ", tmp_dir)
+  message("  Interaction SNPs: ", nrow(gcim_data))
+  message("  GCIM file: ", gcim_file)
 
-  message("  Interaction effect statistics:")
-  message("    Beta mean: ", round(mean(gcim_data$beta, na.rm = TRUE), 6))
-  message("    Beta SD: ", round(sd(gcim_data$beta, na.rm = TRUE), 6))
-  message("    Min p value: ", format(min(gcim_data$pval, na.rm = TRUE), scientific = TRUE))
-
-  result <- list(
+  invisible(list(
     glm_file = glm_file,
     gcim_file = gcim_file,
     tmp_dir = tmp_dir,
     log_file = log_file,
     n_interactions = nrow(gcim_data),
     interaction_term = int_term
-  )
-
-  invisible(result)
+  ))
 }

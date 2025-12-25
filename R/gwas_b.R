@@ -1,59 +1,45 @@
 #' Perform GWAS for a binary covariate (discovery sample)
 #'
-#' This function runs a PLINK logistic GWAS for a binary phenotype and
-#' extracts additive SNP effects (log odds) for use in downstream
-#' GCIM-GWEIS-Z models. All outputs are saved to a temporary directory.
+#' Runs PLINK2 logistic GWAS for a binary phenotype and extracts additive SNP
+#' effects (TEST == "ADD") into a score file suitable for PRS construction.
+#' Prefers PLINK's BETA column if available; otherwise uses log(OR).
+#' All outputs are saved to a temporary directory.
 #'
-#' @param plink_path Character. Path to the PLINK (v2.0) executable.
-#' @param dis_snp Character. Prefix of PLINK binary files
-#'   (.bed/.bim/.fam) for the discovery dataset.
-#' @param bp_dis_cov Character. File path to phenotype and covariate file.
-#'   Columns must be:
-#'   \itemize{
-#'     \item 1: FID
-#'     \item 2: IID
-#'     \item 3: Binary phenotype (0/1 or 1/2)
-#'     \item 4-K: Covariates
-#'   }
+#' @importFrom utils read.table write.table
+#' @param plink_path Character. Path to PLINK2 executable.
+#' @param dis_mydata Character. Prefix of PLINK binary files (.bed/.bim/.fam).
+#' @param dis_cov_file Character. Phenotype + covariate file with columns:
+#'   1: FID, 2: IID, 3: binary phenotype, 4-K: covariates.
+#' @param out_prefix Character. Prefix for PLINK output inside tmp_dir (default "b_gwas").
+#' @param threads Integer. Optional threads for PLINK (default 1).
 #'
-#' @return A list containing file paths to GWAS outputs stored in a
-#' temporary directory:
+#' @return A list containing:
 #' \describe{
-#'   \item{glm_file}{Path to PLINK .glm.logistic.hybrid file}
-#'   \item{additive_effects}{Path to extracted additive SNP log odds}
+#'   \item{gwas_file}{Path to PLINK .glm.logistic* file}
+#'   \item{score_file}{Path to extracted additive SNP effects (ID, A1, BETA)}
 #'   \item{tmp_dir}{Temporary directory used by the function}
 #'   \item{log_file}{Path to PLINK log file}
-#'   \item{n_snps}{Number of SNPs with additive effects}
-#' }
-#'
-#' @details
-#' This function performs the following steps:
-#' \enumerate{
-#'   \item Creates a temporary directory for all outputs
-#'   \item Runs PLINK logistic GWAS with covariate adjustment
-#'   \item Extracts additive SNP effects (TEST equals ADD)
-#'   \item Converts odds ratios to log odds for BETA values
-#'   \item Saves results to temporary files for pipeline continuity
+#'   \item{n_snps}{Number of additive SNP effects extracted}
 #' }
 #'
 #' @export
 b_gwas <- function(plink_path,
-                   dis_snp,
-                   bp_dis_cov) {
+                   dis_mydata,
+                   dis_cov_file,
+                   out_prefix = "b_gwas",
+                   threads = 1) {
 
   ## ---- Input validation ----
   if (!file.exists(plink_path)) {
     stop("PLINK executable not found at: ", plink_path)
   }
-
-  if (!file.exists(paste0(dis_snp, ".bed")) ||
-      !file.exists(paste0(dis_snp, ".bim")) ||
-      !file.exists(paste0(dis_snp, ".fam"))) {
-    stop("PLINK binary files (.bed/.bim/.fam) not found with prefix: ", dis_snp)
+  for (ext in c(".bed", ".bim", ".fam")) {
+    if (!file.exists(paste0(dis_mydata, ext))) {
+      stop("Missing PLINK file: ", paste0(dis_mydata, ext))
+    }
   }
-
-  if (!file.exists(bp_dis_cov)) {
-    stop("Phenotype and covariate file not found: ", bp_dis_cov)
+  if (!file.exists(dis_cov_file)) {
+    stop("Phenotype/covariate file not found: ", dis_cov_file)
   }
 
   ## ---- Create function-specific temporary directory ----
@@ -61,150 +47,132 @@ b_gwas <- function(plink_path,
     tempdir(),
     paste0("b_gwas_", format(Sys.time(), "%Y%m%d_%H%M%S"))
   )
+  dir.create(tmp_dir, recursive = TRUE, showWarnings = FALSE)
 
-  if (!dir.exists(tmp_dir)) {
-    dir.create(tmp_dir, recursive = TRUE)
-  }
+  out_pref <- file.path(tmp_dir, out_prefix)
+  log_file <- paste0(out_pref, ".log")
 
   message("Output directory: ", tmp_dir)
-
-  out_prefix <- file.path(tmp_dir, "b_gwas")
-
-  ## ---- Run PLINK logistic GWAS ----
   message("Step 1 of 3: Running PLINK logistic GWAS")
 
-  cmd <- paste(
-    shQuote(plink_path),
-    "--bfile", shQuote(dis_snp),
-    "--pheno", shQuote(bp_dis_cov),
-    "--pheno-col-nums", 3,
-    "--covar", shQuote(bp_dis_cov),
+  ## ---- Run PLINK GWAS ----
+  args <- c(
+    "--bfile", dis_mydata,
+    "--pheno", dis_cov_file,
+    "--pheno-col-nums", "3",
+    "--covar", dis_cov_file,
     "--covar-col-nums", "4-n",
-    "--glm",
+    "--glm", "hide-covar",  # hide covariates in output; optional
     "--allow-no-sex",
     "--covar-variance-standardize",
-    "--out", shQuote(out_prefix)
+    "--threads", as.character(threads),
+    "--out", out_pref
   )
 
-  exit_code <- system(cmd, ignore.stdout = FALSE, ignore.stderr = FALSE)
-
-  if (exit_code != 0) {
-    warning(
-      "PLINK exited with non-zero status. Check log file: ",
-      paste0(out_prefix, ".log")
-    )
+  exit_code <- suppressWarnings(system2(plink_path, args = args))
+  if (!is.null(exit_code) && exit_code != 0) {
+    warning("PLINK exited with non-zero status (", exit_code, "). Check: ", log_file)
   }
 
-  ## ---- Locate GWAS results ----
+  ## ---- Locate GWAS results robustly ----
   message("Step 2 of 3: Locating GWAS results")
 
-  glm_file <- paste0(out_prefix, ".PHENO1.glm.logistic.hybrid")
-  log_file <- paste0(out_prefix, ".log")
-
-  if (!file.exists(glm_file)) {
-    stop(
-      "GWAS output file not found: ", glm_file,
-      "\nCheck PLINK log at: ", log_file
-    )
+  glm_files <- list.files(tmp_dir, pattern = "\\.glm\\.logistic(\\..*)?$", full.names = TRUE)
+  if (length(glm_files) == 0) {
+    # fallback to any glm output
+    glm_files <- list.files(tmp_dir, pattern = "\\.glm\\.", full.names = TRUE)
   }
+  if (length(glm_files) == 0) {
+    stop("No PLINK GWAS output (*.glm.*) found in: ", tmp_dir,
+         "\nCheck PLINK log at: ", log_file)
+  }
+
+  # Prefer PHENO1 if present
+  gwas_file <- glm_files[grepl("PHENO1", basename(glm_files))]
+  if (length(gwas_file) == 0) gwas_file <- glm_files[1]
+  gwas_file <- gwas_file[1]
 
   ## ---- Read GWAS results ----
   gwas_res <- tryCatch(
-    {
-      read.table(
-        glm_file,
-        header = TRUE,
-        stringsAsFactors = FALSE,
-        comment.char = ""
-      )
-    },
+    utils::read.table(gwas_file,
+               header = TRUE,
+               stringsAsFactors = FALSE,
+               comment.char = ""),
     error = function(e) {
-      stop("Failed to read GWAS results from ", glm_file, "\n", e$message)
+      stop("Failed to read GWAS results from: ", gwas_file, "\n", e$message)
     }
   )
 
   ## ---- Extract additive effects ----
-  message("Step 3 of 3: Extracting additive SNP effects")
+  message("Step 3 of 3: Extracting additive SNP effects (TEST == 'ADD')")
 
-  if (!"TEST" %in% colnames(gwas_res)) {
-    stop("Column 'TEST' not found in GWAS results")
+  if (!"TEST" %in% names(gwas_res)) stop("Column 'TEST' not found in GWAS results: ", gwas_file)
+  add_res <- gwas_res[gwas_res$TEST == "ADD", , drop = FALSE]
+  if (nrow(add_res) == 0) stop("No additive effects (TEST == 'ADD') found in: ", gwas_file)
+
+  # Determine which effect column to use
+  has_beta <- "BETA" %in% names(add_res)
+  has_or   <- "OR"   %in% names(add_res)
+
+  if (!has_beta && !has_or) {
+    stop("Neither 'BETA' nor 'OR' found in GWAS results. Available columns: ",
+         paste(names(add_res), collapse = ", "))
   }
 
-  add_res <- gwas_res[gwas_res$TEST == "ADD", ]
-
-  if (nrow(add_res) == 0) {
-    stop("No additive effects (TEST equals ADD) found in GWAS results")
+  if (!all(c("ID", "A1") %in% names(add_res))) {
+    stop("Missing required columns 'ID' and/or 'A1' in GWAS results.")
   }
 
-  required_cols <- c("ID", "A1", "OR")
-  missing_cols <- setdiff(required_cols, colnames(add_res))
-
-  if (length(missing_cols) > 0) {
-    stop(
-      "Missing required columns in GWAS results: ",
-      paste(missing_cols, collapse = ", ")
-    )
+  if (has_beta) {
+    beta_num <- suppressWarnings(as.numeric(add_res$BETA))
+    bad <- is.na(beta_num) | is.infinite(beta_num)
+    if (any(bad)) {
+      warning("Removing ", sum(bad), " SNPs with missing/invalid BETA")
+      add_res <- add_res[!bad, , drop = FALSE]
+      beta_num <- beta_num[!bad]
+    }
+    add_res$BETA <- beta_num
+  } else {
+    or_num <- suppressWarnings(as.numeric(add_res$OR))
+    bad <- is.na(or_num) | or_num <= 0
+    if (any(bad)) {
+      warning("Removing ", sum(bad), " SNPs with missing/non-positive OR")
+      add_res <- add_res[!bad, , drop = FALSE]
+      or_num <- or_num[!bad]
+    }
+    beta_num <- log(or_num)
+    bad2 <- is.infinite(beta_num) | is.na(beta_num)
+    if (any(bad2)) {
+      warning("Removing ", sum(bad2), " SNPs with invalid log(OR)")
+      add_res <- add_res[!bad2, , drop = FALSE]
+      beta_num <- beta_num[!bad2]
+    }
+    add_res$BETA <- beta_num
   }
 
-  ## ---- Convert OR to log odds ----
-  add_res$OR_numeric <- suppressWarnings(as.numeric(add_res$OR))
+  if (nrow(add_res) == 0) stop("No valid SNPs remaining after filtering invalid effects.")
 
-  invalid_or <- is.na(add_res$OR_numeric) | add_res$OR_numeric <= 0
-  if (any(invalid_or)) {
-    n_invalid <- sum(invalid_or)
-    warning(
-      "Removing ", n_invalid,
-      " SNPs with missing or non-positive odds ratios"
-    )
-    add_res <- add_res[!invalid_or, ]
-  }
-
-  if (nrow(add_res) == 0) {
-    stop("No valid SNPs remaining after filtering invalid odds ratios")
-  }
-
-  add_res$BETA <- log(add_res$OR_numeric)
-
-  infinite_beta <- is.infinite(add_res$BETA)
-  if (any(infinite_beta)) {
-    n_infinite <- sum(infinite_beta)
-    warning(
-      "Removing ", n_infinite,
-      " SNPs with infinite log odds values"
-    )
-    add_res <- add_res[!infinite_beta, ]
-  }
-
-  if (nrow(add_res) == 0) {
-    stop("No valid SNPs remaining after filtering infinite BETA values")
-  }
-
-  ## ---- Save additive effects ----
-  add_file <- file.path(tmp_dir, "covariate_additive_effects.txt")
-
-  write.table(
+  ## ---- Save score file for PRS ----
+  score_file <- file.path(tmp_dir, "covariate_additive_effects.score")
+  utils::write.table(
     add_res[, c("ID", "A1", "BETA")],
-    file = add_file,
+    file = score_file,
     row.names = FALSE,
     col.names = TRUE,
     sep = "\t",
     quote = FALSE
   )
 
-  ## ---- Summary output ----
-  message("Logistic GWAS completed successfully")
-  message("  Total SNPs tested: ", nrow(gwas_res))
-  message("  Additive effects extracted: ", nrow(add_res))
-  message("  Results saved to: ", tmp_dir)
+  message("Logistic GWAS completed")
+  message("  GWAS file: ", gwas_file)
+  message("  Additive SNPs extracted: ", nrow(add_res))
+  message("  Score file for PRS: ", score_file)
 
-  ## ---- Return paths for pipeline continuity ----
-  result <- list(
-    glm_file = glm_file,
-    additive_effects = add_file,
+  invisible(list(
+    gwas_file = gwas_file,
+    score_file = score_file,
     tmp_dir = tmp_dir,
     log_file = log_file,
     n_snps = nrow(add_res)
-  )
-
-  invisible(result)
+  ))
 }

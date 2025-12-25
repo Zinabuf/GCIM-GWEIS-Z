@@ -4,45 +4,38 @@
 \alias{q_gwas}
 \title{Perform GWAS for a quantitative covariate (discovery sample)}
 \usage{
-q_gwas(plink_path, dis_snp, qp_dis_cov)
+q_gwas(
+  plink_path,
+  dis_mydata,
+  dis_cov_file,
+  out_prefix = "q_gwas",
+  threads = 1
+)
 }
 \arguments{
-\item{plink_path}{Character. Path to the PLINK (v2.0) executable.}
+\item{plink_path}{Character. Path to PLINK2 executable.}
 
-\item{dis_snp}{Character. Prefix of PLINK binary files
-(.bed/.bim/.fam) for the discovery dataset.}
+\item{dis_mydata}{Character. Prefix of PLINK binary files (.bed/.bim/.fam).}
 
-\item{qp_dis_cov}{Character. File path to phenotype and covariate file.
-Columns must be:
-\itemize{
-\item 1: FID
-\item 2: IID
-\item 3: Quantitative phenotype
-\item 4-K: Covariates
-}}
+\item{dis_cov_file}{Character. Phenotype + covariate file with columns:
+1: FID, 2: IID, 3: phenotype, 4-K: covariates.}
+
+\item{out_prefix}{Character. Prefix for PLINK output inside tmp_dir (default "q_gwas").}
+
+\item{threads}{Integer. Optional threads for PLINK (default 1).}
 }
 \value{
-A list containing file paths to GWAS outputs stored in a
-temporary directory:
+A list containing:
 \describe{
-\item{glm_file}{Path to PLINK .glm.linear file}
-\item{additive_effects}{Path to extracted additive SNP effects}
+\item{gwas_file}{Path to PLINK .glm.linear file}
+\item{score_file}{Path to extracted additive SNP effects (ID, A1, BETA)}
 \item{tmp_dir}{Temporary directory used by the function}
 \item{log_file}{Path to PLINK log file}
 \item{n_snps}{Number of additive SNP effects extracted}
 }
 }
 \description{
-This function runs a PLINK GWAS for a quantitative phenotype and
-extracts additive SNP effects for downstream GCIM-GWEIS-Z models.
-All intermediate and output files are written to a temporary directory.
-}
-\details{
-This function performs the following steps:
-\enumerate{
-\item Creates a temporary directory for all outputs
-\item Runs PLINK GWAS with covariate adjustment
-\item Extracts additive SNP effects (TEST equals ADD)
-\item Saves results to temporary files for pipeline continuity
-}
+Runs PLINK2 GWAS for a quantitative phenotype and extracts additive SNP effects
+(TEST == "ADD") into a score file suitable for PRS construction.
+All outputs are written to a temporary directory.
 }

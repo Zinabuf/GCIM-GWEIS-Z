@@ -4,46 +4,39 @@
 \alias{b_gwas}
 \title{Perform GWAS for a binary covariate (discovery sample)}
 \usage{
-b_gwas(plink_path, dis_snp, bp_dis_cov)
+b_gwas(
+  plink_path,
+  dis_mydata,
+  dis_cov_file,
+  out_prefix = "b_gwas",
+  threads = 1
+)
 }
 \arguments{
-\item{plink_path}{Character. Path to the PLINK (v2.0) executable.}
+\item{plink_path}{Character. Path to PLINK2 executable.}
 
-\item{dis_snp}{Character. Prefix of PLINK binary files
-(.bed/.bim/.fam) for the discovery dataset.}
+\item{dis_mydata}{Character. Prefix of PLINK binary files (.bed/.bim/.fam).}
 
-\item{bp_dis_cov}{Character. File path to phenotype and covariate file.
-Columns must be:
-\itemize{
-\item 1: FID
-\item 2: IID
-\item 3: Binary phenotype (0/1 or 1/2)
-\item 4-K: Covariates
-}}
+\item{dis_cov_file}{Character. Phenotype + covariate file with columns:
+1: FID, 2: IID, 3: binary phenotype, 4-K: covariates.}
+
+\item{out_prefix}{Character. Prefix for PLINK output inside tmp_dir (default "b_gwas").}
+
+\item{threads}{Integer. Optional threads for PLINK (default 1).}
 }
 \value{
-A list containing file paths to GWAS outputs stored in a
-temporary directory:
+A list containing:
 \describe{
-\item{glm_file}{Path to PLINK .glm.logistic.hybrid file}
-\item{additive_effects}{Path to extracted additive SNP log odds}
+\item{gwas_file}{Path to PLINK .glm.logistic* file}
+\item{score_file}{Path to extracted additive SNP effects (ID, A1, BETA)}
 \item{tmp_dir}{Temporary directory used by the function}
 \item{log_file}{Path to PLINK log file}
-\item{n_snps}{Number of SNPs with additive effects}
+\item{n_snps}{Number of additive SNP effects extracted}
 }
 }
 \description{
-This function runs a PLINK logistic GWAS for a binary phenotype and
-extracts additive SNP effects (log odds) for use in downstream
-GCIM-GWEIS-Z models. All outputs are saved to a temporary directory.
-}
-\details{
-This function performs the following steps:
-\enumerate{
-\item Creates a temporary directory for all outputs
-\item Runs PLINK logistic GWAS with covariate adjustment
-\item Extracts additive SNP effects (TEST equals ADD)
-\item Converts odds ratios to log odds for BETA values
-\item Saves results to temporary files for pipeline continuity
-}
+Runs PLINK2 logistic GWAS for a binary phenotype and extracts additive SNP
+effects (TEST == "ADD") into a score file suitable for PRS construction.
+Prefers PLINK's BETA column if available; otherwise uses log(OR).
+All outputs are saved to a temporary directory.
 }

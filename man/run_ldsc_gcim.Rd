@@ -2,61 +2,56 @@
 % Please edit documentation in R/ldsc_GCIM_gweis_z.R
 \name{run_ldsc_gcim}
 \alias{run_ldsc_gcim}
-\title{Run LDSC on GCIM-GWEIS interaction summary statistics}
+\title{Run LDSC on PLINK GWEIS interaction summary statistics}
 \usage{
 run_ldsc_gcim(
   ldsc_path,
   munge_path,
-  gcim_file,
+  glm_file,
+  interaction_term,
   hm3_snplist,
   ref_ld_chr,
-  chunksize = 1e+05
+  w_ld_chr = ref_ld_chr,
+  chunksize = 1e+05,
+  python = "python"
 )
 }
 \arguments{
-\item{ldsc_path}{Character. Path to the LDSC directory (containing ldsc.py).}
+\item{ldsc_path}{Character. Path to LDSC directory containing ldsc.py.}
 
-\item{munge_path}{Character. Path to munge_sumstats.py script.}
+\item{munge_path}{Character. Path to munge_sumstats.py.}
 
-\item{gcim_file}{Character. GCIM-formatted interaction file generated
-by \code{q_gweis()} or \code{b_gweis()}.}
+\item{glm_file}{Character. Path to PLINK .glm.linear or .glm.logistic* file.}
+
+\item{interaction_term}{Character. e.g., "ADDxCOVAR1".}
 
 \item{hm3_snplist}{Character. Path to HapMap3 SNP list (w_hm3.snplist).}
 
-\item{ref_ld_chr}{Character. Path prefix to reference LD scores
-(for example, "eur_w_ld_chr/" for files like eur_w_ld_chr/1.l2.ldscore.gz).}
+\item{ref_ld_chr}{Character. Path prefix to reference LD scores (e.g. "eur_w_ld_chr/").}
 
-\item{chunksize}{Integer. Chunk size for munging (default is 100000).}
+\item{w_ld_chr}{Character. Path prefix to weights LD scores (often same as ref_ld_chr).}
+
+\item{chunksize}{Integer. Chunk size for munging.}
+
+\item{python}{Character. Python executable (default "python").}
 }
 \value{
-A list containing LDSC outputs stored in a temporary directory:
+A list containing LDSC outputs:
 \describe{
-\item{munged_sumstats}{Path to munged .sumstats.gz file}
+\item{ldsc_sumstats}{Path to intermediate LDSC-ready sumstats (TSV)}
+\item{munged_sumstats}{Path to munged .sumstats.gz}
 \item{munge_log}{Path to munge log file}
 \item{h2_log}{Path to LDSC heritability log file}
 \item{intercept}{Numeric LDSC intercept value}
-\item{intercept_file}{Path to file containing intercept value}
 \item{intercept_se}{Standard error of intercept (if available)}
+\item{intercept_file}{Path to file containing intercept value}
 \item{tmp_dir}{Temporary directory used by the function}
+\item{n_snps}{Number of SNPs written to LDSC-ready sumstats}
 }
 }
 \description{
-This function munges GCIM-formatted interaction summary statistics,
-runs LDSC heritability estimation, and extracts the LDSC intercept
-for use in GCIM-GWEIS-Z correction. All outputs are saved to a
-temporary directory.
-}
-\details{
-This function performs the following steps:
-\enumerate{
-\item Validates all input paths (Python scripts, GCIM file, reference data)
-\item Creates a temporary directory for all outputs
-\item Munges summary statistics to LDSC format
-\item Runs LDSC heritability estimation
-\item Extracts intercept and standard error from the LDSC log
-\item Saves intercept to file for downstream GCIM-GWEIS-Z correction
-}
-
-The LDSC intercept is used to correct for confounding in the GCIM-GWEIS-Z
-framework. An intercept close to 1 suggests minimal inflation.
+This function extracts interaction results (e.g., ADDxCOVAR1) from a PLINK2
+.glm file, writes an LDSC-ready sumstats table (SNP, A1, A2, N, Z),
+munges with munge_sumstats.py, runs ldsc.py --h2, and parses the LDSC intercept.
+All outputs are saved to a temporary directory.
 }
