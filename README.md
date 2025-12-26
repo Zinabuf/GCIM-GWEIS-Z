@@ -20,7 +20,7 @@ install_github("Zinabuf/GCIM-GWEIS-Z")
 ~~~
 library(GCIM-GWEIS-Z)
 ~~~
-# 1. Quantitative trait with quantitative exposure 
+### 1. Quantitative trait with quantitative exposure 
 
 ~~~
 #load library
@@ -49,7 +49,7 @@ zad <- gcim_z_adjust(gw, h2, int_term = gw$interaction_term)
 #save the adjusted values 
 write.table(zad, "GCIM-GWEIS-Z_qq.txt", quote = F, row.names = F, col.names = T, sep = " ")
  ~~~
-# 2. Quantitative trait with binary exposure 
+### 2. Quantitative trait with binary exposure 
 
 ~~~
 #load library
@@ -79,7 +79,7 @@ zad <- gcim_z_adjust(gw, h2, int_term = gw$interaction_term)
 write.table(zad, "GCIM-GWEIS-Z_qb.txt", quote = F, row.names = F, col.names = T, sep = " ")
  ~~~
 
-# 3. Binary trait with quantitative exposure 
+### 3. Binary trait with quantitative exposure 
 
 ~~~
 #load library
@@ -109,7 +109,7 @@ zad <- gcim_z_adjust(gw, h2, int_term = gw$interaction_term)
 write.table(zad, "GCIM-GWEIS-Z_bq.txt", quote = F, row.names = F, col.names = T, sep = " ")
  ~~~
 
-# 4. Binary trait with binary exposure 
+### 4. Binary trait with binary exposure 
 
 ~~~
 #load library
