@@ -27,6 +27,12 @@ library(GCIM-GWEIS-Z)
 ~~~
 #load library
 library(GCIM-GWEIS-Z)
+# Set plink path
+plink_path <- "<plink_path>/plink2"
+# Set munge_sumstats.py path
+menge_path <- "<menge_path>/munge_sumstats.py"
+# Set ldsc.py path
+ldsc_path <- "<ldsc_path>/ldsc.py"
 
 # 1) GWAS -> score file
 g <- q_gwas(plink_path, dis_mydata, dis_cov_file)
@@ -56,6 +62,13 @@ write.table(zad, "GCIM-GWEIS-Z_qq.txt", quote = F, row.names = F, col.names = T,
 ~~~
 #load library
 library(GCIM-GWEIS-Z)
+
+# Set plink path
+plink_path <- "<plink_path>/plink2"
+# Set munge_sumstats.py path
+menge_path <- "<menge_path>/munge_sumstats.py"
+# Set ldsc.py path
+ldsc_path <- "<ldsc_path>/ldsc.py"
 
 # 1) GWAS -> score file
 g <- b_gwas(plink_path, dis_mydata, dis_cov_file)
@@ -87,6 +100,13 @@ write.table(zad, "GCIM-GWEIS-Z_qb.txt", quote = F, row.names = F, col.names = T,
 #load library
 library(GCIM-GWEIS-Z)
 
+# Set plink path
+plink_path <- "<plink_path>/plink2"
+# Set munge_sumstats.py path
+menge_path <- "<menge_path>/munge_sumstats.py"
+# Set ldsc.py path
+ldsc_path <- "<ldsc_path>/ldsc.py"
+
 # 1) GWAS -> score file
 g <- q_gwas(plink_path, dis_mydata, dis_cov_file)
 
@@ -116,6 +136,13 @@ write.table(zad, "GCIM-GWEIS-Z_bq.txt", quote = F, row.names = F, col.names = T,
 ~~~
 #load library
 library(GCIM-GWEIS-Z)
+
+# Set plink path
+plink_path <- "<plink_path>/plink2"
+# Set munge_sumstats.py path
+menge_path <- "<menge_path>/munge_sumstats.py"
+# Set ldsc.py path
+ldsc_path <- "<ldsc_path>/ldsc.py"
 
 # 1) GWAS -> score file
 g <- b_gwas(plink_path, dis_mydata, dis_cov_file)
