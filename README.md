@@ -50,6 +50,8 @@ zad <- gcim_z_adjust(gw, h2, int_term = gw$interaction_term)
 write.table(zad, "GCIM-GWEIS-Z.txt", quote = F, row.names = F, col.names = T, sep = " ")
  ~~~
 # 2. Quantitative trait with binary exposure 
+
+~~~
 #load library
 library(GCIM-GWEIS-Z)
 
@@ -76,7 +78,10 @@ zad <- gcim_z_adjust(gw, h2, int_term = gw$interaction_term)
 #save the adjusted values 
 write.table(zad, "GCIM-GWEIS-Z.txt", quote = F, row.names = F, col.names = T, sep = " ")
  ~~~
+
 # 3. Binary trait with quantitative exposure 
+
+~~~
 #load library
 library(GCIM-GWEIS-Z)
 
@@ -103,7 +108,10 @@ zad <- gcim_z_adjust(gw, h2, int_term = gw$interaction_term)
 #save the adjusted values 
 write.table(zad, "GCIM-GWEIS-Z.txt", quote = F, row.names = F, col.names = T, sep = " ")
  ~~~
+
 # 4. Binary trait with binary exposure 
+
+~~~
 #load library
 library(GCIM-GWEIS-Z)
 
