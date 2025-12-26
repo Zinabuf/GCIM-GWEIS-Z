@@ -47,5 +47,5 @@ h2 <- ldsc_h2_gcim(ldsc_path, m, ref_ld_chr, w_ld_chr = ref_ld_chr)
 # 7) Z adjust
 zad <- gcim_z_adjust(gw, h2, int_term = gw$interaction_term)
 ~~~~
-write.table(gcim-gweis-z, "GCIM-GWEIS-Z.txt", quote = F, row.names = F, col.names = T, sep = " ")
+write.table(zad, "GCIM-GWEIS-Z.txt", quote = F, row.names = F, col.names = T, sep = " ")
  
