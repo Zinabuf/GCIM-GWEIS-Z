@@ -1,0 +1,38 @@
+Package: GCIM.GWEIS.Z
+Type: Package
+Title: GCIM-Based Genome-Wide Environment Interaction and Z-Score Correction
+Version: 0.0.1.000
+Authors@R: 
+    c(
+        person(
+            given = "Zinabu",
+            family = "Fentaw",
+            role = c("aut", "cre", "cph"),
+            email = "zfentaw5@gmail.com"
+        ),
+        person(
+            given = "Sang Hong",
+            family = "Lee",
+            role = c("aut"),
+            email = "Hong.Lee@unisa.edu.au"
+        )
+    )
+Description: Provides tools for genome-wide-by-environment interaction analyses
+    using the Genetic Causality Inference Model (GCIM).
+    The package supports GWAS and GWEIS using PLINK, construction
+    and scaling of polygenic risk scores, preparation of GCIM-formatted
+    interaction summary statistics, linkage disequilibrium score
+    regression (LDSC) for confounding assessment, and LDSC
+    intercept-based Z-score correction for interaction effects.
+    These utilities enable standardized pipelines for GCIM-GWEIS-Z
+    analyses in large-scale genetic studies.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Imports:
+    stats,
+    utils
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
