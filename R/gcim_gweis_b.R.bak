@@ -1,0 +1,463 @@
+#' Perform GWEIS for a binary phenotype and generate a GCIM input file
+#'
+#' Runs PLINK2 logistic regression with SNP × covariate interaction and exports
+#' interaction results (ADDxCOVARk) in GCIM format.
+#'
+#' Improvements vs your draft:
+#' - Prints PLINK stderr head + log tail automatically on non-zero exit (e.g., exit 8)
+#' - Robustly reads phenotype/covar files even if headerless; accepts EID -> IID
+#' - Adds binary phenotype validation and optional recoding (0/1 -> 1/2) in a temp file
+#' - Uses --glm hide-covar interaction for logistic model
+#' - Robustly extracts effect size (prefer BETA; else log(OR); else log(OR_ALT))
+#' - Returns pipeline-friendly files/meta
+#'
+#' @importFrom utils read.table write.table head
+#' @importFrom stats complete.cases
+#' @param plink_path Character. Path to PLINK2 executable.
+#' @param tar_mydata Character. Prefix of PLINK binary files (.bed/.bim/.fam).
+#' @param tar_pheno_file Character OR list. Phenotype file with columns: FID IID PHENO
+#'   (binary PHENO typically 0/1 or 1/2 in column `pheno_col`). Can pass previous-step output list.
+#' @param tar_covar_file Character OR list. Covariate file with columns: FID IID COVAR1...
+#'   (COVAR1 is typically PRS in column 3). Minimum 3 columns required.
+#' @param int_covar_index Integer. Covariate index for interaction term:
+#'   1 -> ADDxCOVAR1, 2 -> ADDxCOVAR2, ...
+#' @param out_file Character. Name of GCIM interaction output file (default "gcim_prs_int.txt").
+#' @param out_prefix Character. PLINK output prefix inside tmp_dir (default "b_gweis").
+#' @param threads Integer. Threads for PLINK (default 40).
+#' @param pheno_col Integer. Phenotype column number (default 3).
+#' @param covar_col_range Character. Covariate column range for PLINK (default "3-").
+#' @param standardize_covar Logical. Use --covar-variance-standardize (default TRUE).
+#' @param ensure_12 Logical. If TRUE, recode 0/1 phenotype to 1/2 (PLINK-safe) in a temp file (default TRUE).
+#' @param show_plink_output Logical. Print stderr head + log tail on PLINK error (default TRUE).
+#'
+#' @return A list with file paths and metadata.
+#' @export
+b_gweis <- function(plink_path,
+                    tar_mydata,
+                    tar_pheno_file,
+                    tar_covar_file,
+                    int_covar_index = 1,
+                    out_file = "gcim_prs_int.txt",
+                    out_prefix = "b_gweis",
+                    threads = 40,
+                    pheno_col = 3,
+                    covar_col_range = "3-",
+                    standardize_covar = TRUE,
+                    ensure_12 = TRUE,
+                    show_plink_output = TRUE) {
+
+  # ---- Helper functions ----
+  .bar   <- function() paste(rep("=", 60), collapse = "")
+  .stop2 <- function(...) stop(paste0(...), call. = FALSE)
+
+  .read_table_flex <- function(path, must_have = c("FID", "IID"), min_cols = 3) {
+    x <- tryCatch(
+      utils::read.table(path, header = TRUE, stringsAsFactors = FALSE,
+                        check.names = FALSE, comment.char = ""),
+      error = function(e) NULL
+    )
+    ok <- !is.null(x) && ncol(x) >= 2 && any(c("FID","IID","EID") %in% names(x))
+    if (!ok) {
+      x <- tryCatch(
+        utils::read.table(path, header = FALSE, stringsAsFactors = FALSE,
+                          check.names = FALSE, comment.char = ""),
+        error = function(e) .stop2("Failed to read file: ", path, "\n", e$message)
+      )
+      if (nrow(x) == 0) .stop2("File has 0 rows: ", path)
+      if (ncol(x) < min_cols) .stop2("File must have at least ", min_cols, " columns: ", path)
+      names(x)[1:2] <- c("FID", "IID")
+    }
+    if ("EID" %in% names(x) && !"IID" %in% names(x)) names(x)[names(x) == "EID"] <- "IID"
+    if (!all(must_have %in% names(x))) {
+      .stop2(
+        "File must contain columns: ", paste(must_have, collapse = ", "),
+        "\nActual columns: ", paste(names(x), collapse = ", "),
+        "\nFile: ", path
+      )
+    }
+    if (ncol(x) < min_cols) .stop2("File must have at least ", min_cols, " columns: ", path)
+    x
+  }
+
+  .read_fam_ids <- function(bfile_prefix) {
+    fam_path <- paste0(bfile_prefix, ".fam")
+    fam <- utils::read.table(fam_path, header = FALSE, stringsAsFactors = FALSE)
+    if (ncol(fam) < 2) .stop2("FAM file malformed: ", fam_path)
+    data.frame(FID = fam[[1]], IID = fam[[2]], stringsAsFactors = FALSE)
+  }
+
+  .key <- function(df) paste(df$FID, df$IID, sep = "___")
+
+  .print_plink_debug <- function(stderr_file, log_file, n = 80) {
+    if (!isTRUE(show_plink_output)) return(invisible(NULL))
+    if (file.exists(stderr_file)) {
+      cat("\n---- PLINK STDERR (head) ----\n")
+      cat(paste(utils::head(readLines(stderr_file, warn = FALSE), n), collapse = "\n"), "\n")
+    }
+    if (file.exists(log_file)) {
+      cat("\n---- PLINK LOG (tail) ----\n")
+      cat(paste(tail(readLines(log_file, warn = FALSE), n), collapse = "\n"), "\n")
+    }
+    invisible(NULL)
+  }
+
+  .validate_binary_and_maybe_recode <- function(pheno_df, pheno_col, tmp_dir, ensure_12) {
+    v <- suppressWarnings(as.numeric(pheno_df[[pheno_col]]))
+    if (all(is.na(v))) .stop2("Phenotype column ", pheno_col, " is entirely NA/non-numeric.")
+    # keep only non-missing for diagnostics; PLINK handles missing if coded -9 but you may not
+    u <- sort(unique(v[!is.na(v)]))
+    if (length(u) < 2) .stop2("Binary phenotype has <2 unique values (looks constant). Values: ", paste(u, collapse = ", "))
+    if (length(u) > 2) {
+      warning("Phenotype has >2 unique numeric values; expected binary. Unique values (first 10): ",
+              paste(utils::head(u, 10), collapse = ", "), call. = FALSE)
+    }
+
+    # If ensure_12 and values are {0,1}, recode to {1,2}
+    if (isTRUE(ensure_12) && length(u) == 2 && all(u %in% c(0, 1))) {
+      ph2 <- pheno_df
+      vv <- suppressWarnings(as.numeric(ph2[[pheno_col]]))
+      ph2[[pheno_col]] <- ifelse(is.na(vv), NA, ifelse(vv == 0, 1, 2))
+      out <- file.path(tmp_dir, "pheno_recode_12.txt")
+      utils::write.table(ph2, out, row.names = FALSE, col.names = TRUE, sep = "\t", quote = FALSE)
+      return(list(path = out, recoded = TRUE, levels = c(1,2)))
+    }
+
+    list(path = NULL, recoded = FALSE, levels = u)
+  }
+
+  # ---- Resolve file paths if lists are provided ----
+  pheno_source <- NULL
+  covar_source <- NULL
+
+  if (is.list(tar_pheno_file)) {
+    if (!is.null(tar_pheno_file$meta)) pheno_source <- tar_pheno_file$meta$step
+    if (!is.null(tar_pheno_file$tar_pheno_file)) {
+      tar_pheno_file <- tar_pheno_file$tar_pheno_file
+    } else if (!is.null(tar_pheno_file$output_file)) {
+      tar_pheno_file <- tar_pheno_file$output_file
+    } else {
+      .stop2("Input list does not contain 'tar_pheno_file' or 'output_file'.")
+    }
+  }
+
+  if (is.list(tar_covar_file)) {
+    if (!is.null(tar_covar_file$meta)) covar_source <- tar_covar_file$meta$step
+    if (!is.null(tar_covar_file$output_file)) {
+      tar_covar_file <- tar_covar_file$output_file
+    } else if (!is.null(tar_covar_file$tar_covar_file)) {
+      tar_covar_file <- tar_covar_file$tar_covar_file
+    } else {
+      .stop2("Input list does not contain 'output_file' or 'tar_covar_file'.")
+    }
+  }
+
+  # ---- Input validation ----
+  if (!is.character(plink_path) || length(plink_path) != 1 || !nzchar(plink_path))
+    .stop2("`plink_path` must be a non-empty character scalar.")
+  if (!file.exists(plink_path))
+    .stop2("PLINK executable not found at: ", plink_path)
+
+  if (!is.character(tar_mydata) || length(tar_mydata) != 1 || !nzchar(tar_mydata))
+    .stop2("`tar_mydata` must be a non-empty character scalar prefix to .bed/.bim/.fam.")
+  for (ext in c(".bed", ".bim", ".fam")) {
+    fp <- paste0(tar_mydata, ext)
+    if (!file.exists(fp)) .stop2("Missing PLINK file: ", fp)
+  }
+
+  if (!is.character(tar_pheno_file) || length(tar_pheno_file) != 1 || !nzchar(tar_pheno_file))
+    .stop2("`tar_pheno_file` must be a non-empty character scalar path.")
+  if (!file.exists(tar_pheno_file))
+    .stop2("Phenotype file not found: ", tar_pheno_file)
+
+  if (!is.character(tar_covar_file) || length(tar_covar_file) != 1 || !nzchar(tar_covar_file))
+    .stop2("`tar_covar_file` must be a non-empty character scalar path.")
+  if (!file.exists(tar_covar_file))
+    .stop2("Covariate file not found: ", tar_covar_file)
+
+  if (!is.numeric(int_covar_index) || length(int_covar_index) != 1 ||
+      is.na(int_covar_index) || int_covar_index < 1)
+    .stop2("`int_covar_index` must be a positive integer.")
+  int_covar_index <- as.integer(int_covar_index)
+
+  if (!is.numeric(pheno_col) || length(pheno_col) != 1 || is.na(pheno_col) || pheno_col < 3)
+    .stop2("`pheno_col` must be an integer >= 3.")
+  pheno_col <- as.integer(pheno_col)
+
+  if (!is.numeric(threads) || length(threads) != 1 || is.na(threads) || threads < 1) {
+    warning("Invalid `threads` value. Setting to 1.", call. = FALSE)
+    threads <- 1
+  }
+  threads <- as.integer(threads)
+
+  # ---- Create function-specific temporary directory ----
+  tmp_dir <- file.path(tempdir(), paste0("b_gweis_", format(Sys.time(), "%Y%m%d_%H%M%S")))
+  dir.create(tmp_dir, recursive = TRUE, showWarnings = FALSE)
+
+  out_pref    <- file.path(tmp_dir, out_prefix)
+  log_file    <- paste0(out_pref, ".log")
+  stdout_file <- paste0(out_pref, ".stdout")
+  stderr_file <- paste0(out_pref, ".stderr")
+
+  # ---- Read phenotype/covar robustly ----
+  pheno_df <- .read_table_flex(tar_pheno_file, must_have = c("FID","IID"), min_cols = pheno_col)
+  covar_df <- .read_table_flex(tar_covar_file, must_have = c("FID","IID"), min_cols = 3)
+
+  # ---- Validate covariate names / index ----
+  covar_names <- setdiff(names(covar_df), c("FID","IID"))
+  n_covars <- length(covar_names)
+  if (n_covars < 1) .stop2("No covariates found after FID/IID in: ", tar_covar_file)
+  if (int_covar_index > n_covars) {
+    .stop2("`int_covar_index` (", int_covar_index, ") exceeds number of covariates (", n_covars, ").",
+           "\nAvailable: ", paste(covar_names, collapse = ", "))
+  }
+  covar_name_used <- covar_names[int_covar_index]
+  has_additional_covars <- n_covars > 1
+  n_additional_covars <- if (has_additional_covars) n_covars - 1 else 0
+
+  # ---- Validate binary phenotype and optionally recode 0/1 -> 1/2 ----
+  rec <- .validate_binary_and_maybe_recode(pheno_df, pheno_col, tmp_dir, ensure_12)
+  pheno_path_used <- if (isTRUE(rec$recoded)) rec$path else tar_pheno_file
+
+  # ---- Overlap diagnostics vs .fam (very common failure cause) ----
+  fam_ids <- .read_fam_ids(tar_mydata)
+  k_fam <- .key(fam_ids)
+  k_ph  <- .key(pheno_df)
+  k_cv  <- .key(covar_df)
+  n_ph_overlap <- sum(k_ph %in% k_fam)
+  n_cv_overlap <- sum(k_cv %in% k_fam)
+
+  int_term <- paste0("ADDxCOVAR", int_covar_index)
+
+  message(.bar())
+  message("GCIM-GWEIS-Z: Step 4 - Binary GWEIS (Target Sample)")
+  message(.bar())
+  message("Output directory: ", tmp_dir)
+  message("Phenotype file: ", basename(pheno_path_used), " (pheno_col=", pheno_col, ")")
+  message("  Binary levels (observed): ", paste(rec$levels, collapse = ", "))
+  if (isTRUE(rec$recoded)) message("  Note: phenotype recoded 0/1 -> 1/2 for PLINK.")
+  message("Covariate file: ", basename(tar_covar_file))
+  message("  Total covariates: ", n_covars)
+  message("  Interaction covariate: '", covar_name_used, "' (index ", int_covar_index, ")")
+  message("  Additional covariates: ", if (has_additional_covars) n_additional_covars else "none")
+  message("Interaction term: ", int_term)
+  message("ID overlap with .fam:")
+  message("  pheno overlap: ", n_ph_overlap, " / ", nrow(pheno_df))
+  message("  covar overlap: ", n_cv_overlap, " / ", nrow(covar_df))
+  if (!is.null(pheno_source)) message("Phenotype source: ", pheno_source)
+  if (!is.null(covar_source)) message("Covariate source: ", covar_source)
+
+  if (!has_additional_covars && int_covar_index == 1) {
+    warning(
+      "Only one covariate detected (likely PRS in column 3). ",
+      "Consider including additional covariates (age, sex, PCs) to control for confounding.",
+      call. = FALSE
+    )
+  }
+
+  message("Running PLINK2 GWEIS (logistic interaction)...")
+
+  # ---- Build PLINK args (logistic is inferred by binary phenotype in --glm) ----
+  args <- c(
+    "--bfile", tar_mydata,
+    "--pheno", pheno_path_used,
+    "--pheno-col-nums", as.character(pheno_col),
+    "--covar", tar_covar_file,
+    "--covar-col-nums", covar_col_range,
+    "--glm", "interaction", "hide-covar",
+    "--allow-no-sex"
+  )
+  if (isTRUE(standardize_covar)) args <- c(args, "--covar-variance-standardize")
+  args <- c(args, "--threads", as.character(threads), "--out", out_pref)
+
+  exit_code <- suppressWarnings(
+    system2(plink_path, args = args, stdout = stdout_file, stderr = stderr_file)
+  )
+
+  if (!file.exists(log_file)) warning("Expected PLINK log not found: ", log_file, call. = FALSE)
+
+  if (!is.null(exit_code) && exit_code != 0) {
+    .print_plink_debug(stderr_file, log_file, n = 80)
+    .stop2(
+      "PLINK exited with non-zero status (", exit_code, ").\n\n",
+      "PLINK command:\n  ", plink_path, " ", paste(args, collapse = " "), "\n\n",
+      "Check:\n  log: ", log_file, "\n  stderr: ", stderr_file, "\n  stdout: ", stdout_file, "\n"
+    )
+  }
+
+  # ---- Locate GWEIS output ----
+  glm_files <- list.files(tmp_dir, pattern = "\\.glm\\.logistic(\\..*)?$", full.names = TRUE)
+  if (length(glm_files) == 0) glm_files <- list.files(tmp_dir, pattern = "\\.glm\\.", full.names = TRUE)
+  if (length(glm_files) == 0) {
+    .print_plink_debug(stderr_file, log_file, n = 80)
+    .stop2("No PLINK output (*.glm.*) found in: ", tmp_dir, "\nCheck log: ", log_file)
+  }
+
+  pheno1 <- glm_files[grepl("PHENO1", basename(glm_files))]
+  glm_file <- if (length(pheno1) > 0) pheno1[1] else glm_files[1]
+  if (!file.exists(glm_file)) .stop2("Selected GWEIS file does not exist: ", glm_file)
+
+  message("GWEIS results file: ", basename(glm_file))
+
+  gweis_res <- tryCatch(
+    utils::read.table(glm_file, header = TRUE, stringsAsFactors = FALSE,
+                      comment.char = "", check.names = FALSE),
+    error = function(e) .stop2("Failed to read GWEIS results from ", glm_file, "\n", e$message)
+  )
+  if (nrow(gweis_res) == 0) .stop2("GWEIS file has 0 rows: ", glm_file)
+  if (!"TEST" %in% names(gweis_res)) .stop2("Column 'TEST' not found in GWEIS output: ", glm_file)
+
+  # ---- Extract interaction effects ----
+  gw <- gweis_res[gweis_res$TEST == int_term, , drop = FALSE]
+  if (nrow(gw) == 0) {
+    available_tests <- unique(gweis_res$TEST)
+    interaction_tests <- grep("^ADDxCOVAR", available_tests, value = TRUE)
+    .stop2(
+      "No rows found for interaction term: ", int_term, "\n",
+      "Available TEST values: ", paste(available_tests, collapse = ", "), "\n",
+      "Available interaction terms: ",
+      if (length(interaction_tests) > 0) paste(interaction_tests, collapse = ", ") else "none"
+    )
+  }
+  message("Interaction SNPs extracted: ", nrow(gw))
+
+  # ---- Required columns ----
+  core_needed <- c("ID", "#CHROM", "POS", "A1", "P", "OBS_CT")
+  missing_core <- setdiff(core_needed, names(gw))
+  if (length(missing_core) > 0) {
+    .stop2("Missing required columns in GWEIS results: ", paste(missing_core, collapse = ", "),
+           "\nColumns available: ", paste(names(gw), collapse = ", "))
+  }
+
+  # ---- Allele 2 column ----
+  a2_col <- NULL
+  for (cand in c("A2", "REF", "ALT", "ALT1")) {
+    if (cand %in% names(gw)) { a2_col <- cand; break }
+  }
+  if (is.null(a2_col)) {
+    .stop2("Could not find a second allele column (tried A2/REF/ALT/ALT1).",
+           "\nColumns available: ", paste(names(gw), collapse = ", "))
+  }
+  message("Using allele 2 column: ", a2_col)
+
+  # ---- Effect size: prefer BETA, else log(OR)/log(OR_ALT) ----
+  effect_source <- NULL
+  beta <- NULL
+
+  if ("BETA" %in% names(gw)) {
+    effect_source <- "BETA"
+    beta <- suppressWarnings(as.numeric(gw$BETA))
+  } else if ("OR" %in% names(gw)) {
+    effect_source <- "log(OR)"
+    orv <- suppressWarnings(as.numeric(gw$OR))
+    beta <- log(orv)
+  } else if ("OR_ALT" %in% names(gw)) {
+    effect_source <- "log(OR_ALT)"
+    orv <- suppressWarnings(as.numeric(gw$OR_ALT))
+    beta <- log(orv)
+  } else {
+    .stop2("No effect size column found (expected BETA, OR, or OR_ALT).",
+           "\nColumns available: ", paste(names(gw), collapse = ", "))
+  }
+
+  bad_eff <- is.na(beta) | is.infinite(beta)
+  n_removed_eff <- sum(bad_eff)
+  if (n_removed_eff > 0) {
+    warning("Removing ", n_removed_eff, " SNPs with missing/invalid effect values (", effect_source, ")", call. = FALSE)
+    gw <- gw[!bad_eff, , drop = FALSE]
+    beta <- beta[!bad_eff]
+  }
+  if (nrow(gw) == 0) .stop2("No valid interaction results remain after filtering invalid effects.")
+
+  message("Using effect measure: ", effect_source)
+
+  # ---- Build GCIM data frame ----
+  gcim_data <- data.frame(
+    order = seq_len(nrow(gw)),
+    snpid = gw$ID,
+    chr   = gw$`#CHROM`,
+    bp    = gw$POS,
+    a1    = gw$A1,
+    a2    = gw[[a2_col]],
+    beta  = beta,
+    pval  = gw$P,
+    N     = gw$OBS_CT,
+    stringsAsFactors = FALSE
+  )
+
+  keep <- stats::complete.cases(gcim_data)
+  n_removed_missing <- sum(!keep)
+  if (n_removed_missing > 0) {
+    warning("Removing ", n_removed_missing, " SNPs with missing values in key columns", call. = FALSE)
+    gcim_data <- gcim_data[keep, , drop = FALSE]
+  }
+  if (nrow(gcim_data) == 0) .stop2("No valid interaction results after filtering missing values.")
+
+  # ---- Write GCIM file ----
+  gcim_file <- file.path(tmp_dir, out_file)
+  writeLines("order snpid chr bp a1 a2 beta pval N", con = gcim_file)
+  utils::write.table(gcim_data, file = gcim_file, quote = FALSE,
+                     col.names = TRUE, row.names = FALSE, sep = " ")
+
+  if (!file.exists(gcim_file)) .stop2("Failed to create GCIM file: ", gcim_file)
+
+  message(.bar())
+  message("Binary GWEIS completed successfully!")
+  message("  GLM file: ", glm_file)
+  message("  Interaction term: ", int_term)
+  message("  Interaction covariate: '", covar_name_used, "'")
+  message("  Effect measure: ", effect_source)
+  message("  Interaction SNPs: ", nrow(gcim_data))
+  message("  GCIM file: ", gcim_file)
+  message(.bar())
+
+  res <- list(
+    glm_file = glm_file,
+    gcim_file = gcim_file,
+    tmp_dir = tmp_dir,
+    log_file = log_file,
+    n_interactions = nrow(gcim_data),
+    interaction_term = int_term,
+    covariate_name = covar_name_used,
+    files = list(
+      glm = glm_file,
+      gcim = gcim_file,
+      plink_log = log_file,
+      stdout = stdout_file,
+      stderr = stderr_file,
+      pheno_used = pheno_path_used
+    ),
+    meta = list(
+      step = "GWEIS",
+      trait_type = "binary",
+      model = "logistic_interaction",
+      int_covar_index = int_covar_index,
+      int_term = int_term,
+      covariate_name = covar_name_used,
+      n_covariates = n_covars,
+      has_additional_covars = has_additional_covars,
+      n_additional_covars = n_additional_covars,
+      threads = threads,
+      pheno_col = pheno_col,
+      covar_col_range = covar_col_range,
+      standardize_covar = standardize_covar,
+      ensure_12 = ensure_12,
+      pheno_recoded = rec$recoded,
+      fam_n = nrow(fam_ids),
+      pheno_n = nrow(pheno_df),
+      covar_n = nrow(covar_df),
+      pheno_overlap_with_fam = n_ph_overlap,
+      covar_overlap_with_fam = n_cv_overlap,
+      a2_col = a2_col,
+      effect_source = effect_source,
+      n_snps_total = nrow(gweis_res),
+      n_snps_interaction = nrow(gcim_data),
+      n_snps_removed_effect = n_removed_eff,
+      n_snps_removed_missing = n_removed_missing,
+      timestamp = Sys.time(),
+      pheno_source = pheno_source,
+      covar_source = covar_source
+    )
+  )
+
+  invisible(res)
+}
