@@ -18,7 +18,7 @@ install_github("Zinabuf/GCIM-GWEIS-Z")
 
 
 ~~~
-library(GCIM-GWEIS-Z)
+library(GCIM.GWEIS.Z)
 ~~~
 
 ## 3. Analysis pipeline
