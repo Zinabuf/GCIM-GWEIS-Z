@@ -227,7 +227,6 @@ ldsc_res <- ldsc_h2_gcim(ldsc_path = "/home/567/zw6700/ldsc/ldsc.py", python = "
 # Step 7: Adjust Z-scores
 cat("Step 7: Adjusting Z-scores...\n")
 final_res <- gcim_z_adjust(glm_file = gweis_res, intercept_file = ldsc_res)
-write.table(final_res, "gcimt2.PHENO1.glm.linear", row.names = F, quote = F, sep = " ")
 # Report final results
 cat("\n===== PIPELINE COMPLETE =====\n")
 cat("Total SNPs analyzed:", final_res$n_snps, "\n")
