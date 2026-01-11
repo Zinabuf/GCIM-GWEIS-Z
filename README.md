@@ -67,16 +67,6 @@ ldsc_res <- ldsc_h2_gcim(ldsc_path = "/home/567/zw6700/ldsc/ldsc.py", python = "
 # Step 7: Adjust Z-scores
 cat("Step 7: Adjusting Z-scores...\n")
 final_res <- gcim_z_adjust(glm_file = gweis_res, intercept_file = ldsc_res)
-# Report final results
-cat("\n===== PIPELINE COMPLETE =====\n")
-cat("Total SNPs analyzed:", final_res$n_snps, "\n")
-cat("LDSC intercept:", sprintf("%.4f", final_res$intercept_used), "\n")
-cat("Correction factor:", sprintf("%.4f", final_res$correction_factor), "\n")
-cat("Significant SNPs (p<0.05):\n")
-cat("  Before adjustment:", final_res$n_sig_original, "\n")
-cat("  After adjustment:", final_res$n_sig_adjusted, "\n")
-cat("\nFinal results saved to:", final_res$output_file, "\n")
-```
 write.table(final_res, "GCIM-GWEIS-Z_qq.txt", quote = F, row.names = F, col.names = T, sep = " ")
  ~~~
 
@@ -125,16 +115,6 @@ ldsc_res <- ldsc_h2_gcim(ldsc_path = "/home/567/zw6700/ldsc/ldsc.py", python = "
 # Step 7: Adjust Z-scores
 cat("Step 7: Adjusting Z-scores...\n")
 final_res <- gcim_z_adjust(glm_file = gweis_res, intercept_file = ldsc_res)
-# Report final results
-cat("\n===== PIPELINE COMPLETE =====\n")
-cat("Total SNPs analyzed:", final_res$n_snps, "\n")
-cat("LDSC intercept:", sprintf("%.4f", final_res$intercept_used), "\n")
-cat("Correction factor:", sprintf("%.4f", final_res$correction_factor), "\n")
-cat("Significant SNPs (p<0.05):\n")
-cat("  Before adjustment:", final_res$n_sig_original, "\n")
-cat("  After adjustment:", final_res$n_sig_adjusted, "\n")
-cat("\nFinal results saved to:", final_res$output_file, "\n")
-```
 #save the adjusted values 
 write.table(final_res, "GCIM-GWEIS-Z_qb.txt", quote = F, row.names = F, col.names = T, sep = " ")
  ~~~
@@ -199,7 +179,7 @@ cat("  After adjustment:", final_res$n_sig_adjusted, "\n")
 cat("\nFinal results saved to:", final_res$output_file, "\n")
 ```
 #save the adjusted values 
-write.table(zad, "GCIM-GWEIS-Z_bq.txt", quote = F, row.names = F, col.names = T, sep = " ")
+write.table(final_res, "GCIM-GWEIS-Z_bq.txt", quote = F, row.names = F, col.names = T, sep = " ")
  ~~~
 
 ### 4. Binary Outcomes with Binary Exposures
