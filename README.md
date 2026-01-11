@@ -37,11 +37,11 @@ hm3_snps <- "<snplst_path>/w_hm3.snplist"
 ld_scores <- "<ld_ref_path>/eur_w_ld_chr/"
 # Discovery data
 dis_geno <- "<geno_path>/dis_mydata"
-dis_pheno <- "<tar_exp_path>/phend"
+dis_pheno <- "<tar_exp_path>/exp_dis"
 # Target data
 tar_geno <- "<geno_path>/tar_mydata"
-tar_pheno <- "<tar_pheno_path>/phent"
-tar_covar <- "<tar_cov_path>/covt"
+tar_pheno <- "<tar_pheno_path>/outcome"
+tar_covar <- "<tar_cov_path>/exp_tar"
 
 # Step 1: Discovery GWAS
 cat("Step 1: Running discovery GWAS...\n")
