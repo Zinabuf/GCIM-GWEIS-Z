@@ -74,7 +74,11 @@ ldsc_res <- ldsc_h2_gcim(ldsc_path = "/home/567/zw6700/ldsc/ldsc.py", python = "
 # Step 7: Adjust Z-scores
 cat("Step 7: Adjusting Z-scores...\n")
 final_res <- gcim_z_adjust(glm_file = gweis_res, intercept_file = ldsc_res)
-write.table(final_res, "GCIM-GWEIS-Z_qq.txt", quote = F, row.names = F, col.names = T, sep = " ")
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
+# fully adjusted outputs 
+zdf <- read.table(final_res$output_file, header = TRUE, stringsAsFactors = FALSE)
+file.copy(final_res$output_file, "gcim_z_adjusted.txt", overwrite = TRUE)
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
  ~~~
 
 ### 2. Quantitative Outcomes with Binary Exposures
@@ -128,7 +132,11 @@ ldsc_res <- ldsc_h2_gcim(ldsc_path = "/home/567/zw6700/ldsc/ldsc.py", python = "
 cat("Step 7: Adjusting Z-scores...\n")
 final_res <- gcim_z_adjust(glm_file = gweis_res, intercept_file = ldsc_res)
 #save the adjusted values 
-write.table(final_res, "GCIM-GWEIS-Z_qb.txt", quote = F, row.names = F, col.names = T, sep = " ")
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
+# fully adjusted outputs 
+zdf <- read.table(final_res$output_file, header = TRUE, stringsAsFactors = FALSE)
+file.copy(final_res$output_file, "gcim_z_adjusted.txt", overwrite = TRUE)
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
  ~~~
 
 ### 3. Binary Outcomes with Quantitative Exposures 
@@ -186,7 +194,11 @@ ldsc_res <- ldsc_h2_gcim(ldsc_path = "/home/567/zw6700/ldsc/ldsc.py", python = "
 cat("Step 7: Adjusting Z-scores...\n")
 final_res <- gcim_z_adjust(glm_file = gweis_res, intercept_file = ldsc_res)
 #save the adjusted values 
-write.table(final_res, "GCIM-GWEIS-Z_bq.txt", quote = F, row.names = F, col.names = T, sep = " ")
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
+# fully adjusted outputs 
+zdf <- read.table(final_res$output_file, header = TRUE, stringsAsFactors = FALSE)
+file.copy(final_res$output_file, "gcim_z_adjusted.txt", overwrite = TRUE)
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
  ~~~
 
 ### 4. Binary Outcomes with Binary Exposures
@@ -244,5 +256,9 @@ cat("Step 7: Adjusting Z-scores...\n")
 final_res <- gcim_z_adjust(glm_file = gweis_res, intercept_file = ldsc_res)
 
 #save the adjusted values 
-write.table(final_res, "GCIM-GWEIS-Z_bb.txt", quote = F, row.names = F, col.names = T, sep = " ")
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
+# fully adjusted outputs 
+zdf <- read.table(final_res$output_file, header = TRUE, stringsAsFactors = FALSE)
+file.copy(final_res$output_file, "gcim_z_adjusted.txt", overwrite = TRUE)
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
  ~~~
