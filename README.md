@@ -77,7 +77,7 @@ final_res <- gcim_z_adjust(glm_file = gweis_res, intercept_file = ldsc_res)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
 # fully adjusted outputs 
 zdf <- read.table(final_res$output_file, header = TRUE, stringsAsFactors = FALSE)
-file.copy(final_res$output_file, "gcim_z_adjusted.txt", overwrite = TRUE)
+file.copy(final_res$output_file, "gcim_gcim_z_qq_adjusted.txt", overwrite = TRUE)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
  ~~~
 
@@ -135,7 +135,7 @@ final_res <- gcim_z_adjust(glm_file = gweis_res, intercept_file = ldsc_res)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
 # fully adjusted outputs 
 zdf <- read.table(final_res$output_file, header = TRUE, stringsAsFactors = FALSE)
-file.copy(final_res$output_file, "gcim_z_adjusted.txt", overwrite = TRUE)
+file.copy(final_res$output_file, "gcim_gcim_z_qb_adjusted.txt", overwrite = TRUE)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
  ~~~
 
@@ -197,7 +197,7 @@ final_res <- gcim_z_adjust(glm_file = gweis_res, intercept_file = ldsc_res)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
 # fully adjusted outputs 
 zdf <- read.table(final_res$output_file, header = TRUE, stringsAsFactors = FALSE)
-file.copy(final_res$output_file, "gcim_z_adjusted.txt", overwrite = TRUE)
+file.copy(final_res$output_file, "gcim_gcim_z_bq_adjusted.txt", overwrite = TRUE)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
  ~~~
 
@@ -259,6 +259,6 @@ final_res <- gcim_z_adjust(glm_file = gweis_res, intercept_file = ldsc_res)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
 # fully adjusted outputs 
 zdf <- read.table(final_res$output_file, header = TRUE, stringsAsFactors = FALSE)
-file.copy(final_res$output_file, "gcim_z_adjusted.txt", overwrite = TRUE)
+file.copy(final_res$output_file, "gcim_gcim_z_bb_adjusted.txt", overwrite = TRUE)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
  ~~~
