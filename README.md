@@ -56,6 +56,13 @@ replaced_res <- replace_covariate_with_prs(dis_cov_file = tar_covar, prs_file = 
 # Step 4: GWEIS
 cat("Step 4: Running GWEIS...\n")
 gweis_res <- q_gweis(plink_path = plink, tar_mydata = tar_geno, tar_pheno_file = tar_pheno, tar_covar_file = replaced_res, int_covar_index = 1, threads = 40)
+
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
+glm_df <- read.table(gweis_res$glm_file, header = TRUE, comment.char = "", stringsAsFactors = FALSE)
+
+write.table(glm_df, file = "qq_gweis.phent.glm.linear", col.names = TRUE, row.names = FALSE, quote = FALSE, sep = "\t")
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
+
 # Step 5: Munge for LDSC
 cat("Step 5: Munging for LDSC...\n")
 munge_res <- munge_ldsc_gcim(munge_path  = "/home/567/zw6700/ldsc/munge_sumstats.py", glm_file    = gweis_res, hm3_snplist = hm3_snps,
@@ -105,6 +112,11 @@ replaced_res <- replace_covariate_with_prs(dis_cov_file = tar_covar, prs_file = 
 # Step 4: GWEIS
 cat("Step 4: Running GWEIS...\n")
 gweis_res <- q_gweis(plink_path = plink, tar_mydata = tar_geno, tar_pheno_file = tar_pheno, tar_covar_file = replaced_res, int_covar_index = 1, threads = 40)
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
+glm_df <- read.table(gweis_res$glm_file, header = TRUE, comment.char = "", stringsAsFactors = FALSE)
+
+write.table(glm_df, file = "qb_gweis.phent.glm.linear", col.names = TRUE, row.names = FALSE, quote = FALSE, sep = "\t")
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
 # Step 5: Munge for LDSC
 cat("Step 5: Munging for LDSC...\n")
 munge_res <- munge_ldsc_gcim(munge_path  = "/home/567/zw6700/ldsc/munge_sumstats.py", glm_file    = gweis_res, hm3_snplist = hm3_snps, python      = "/home/567/zw6700/anaconda3/envs/ldsc/bin/python")
@@ -155,9 +167,14 @@ replaced_res <- replace_covariate_with_prs(dis_cov_file = tar_covar, prs_file = 
 # Step 4: GWEIS
 cat("Step 4: Running GWEIS...\n")
 gweis_res <- b_gweis(plink_path = plink, tar_mydata = tar_geno, tar_pheno_file = tar_pheno, tar_covar_file = replaced_res, int_covar_index = 1, threads = 40)
+
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
+glm_df <- read.table(gweis_res$glm_file, header = TRUE, comment.char = "", stringsAsFactors = FALSE)
+
+write.table(glm_df, file = "bq_gweis.phent.glm.linear", col.names = TRUE, row.names = FALSE, quote = FALSE, sep = "\t")
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
 # Step 5: Munge for LDSC
 cat("Step 5: Munging for LDSC...\n")
-
 munge_res <- munge_ldsc_gcim(munge_path  = "/home/567/zw6700/ldsc/munge_sumstats.py", glm_file    = gweis_res, hm3_snplist = hm3_snps,
   python      = "/home/567/zw6700/anaconda3/envs/ldsc/bin/python")
 # Step 6: LDSC heritability
@@ -208,7 +225,11 @@ replaced_res <- replace_covariate_with_prs(dis_cov_file = tar_covar, prs_file = 
 # Step 4: GWEIS
 cat("Step 4: Running GWEIS...\n")
 gweis_res <- b_gweis(plink_path = plink, tar_mydata = tar_geno, tar_pheno_file = tar_pheno, tar_covar_file = replaced_res, int_covar_index = 1, threads = 40)
-write.table(gweis_res, "gcimt1.PHENO1.glm.linear", quote = F, row.names = F, sep = " ")
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
+glm_df <- read.table(gweis_res$glm_file, header = TRUE, comment.char = "", stringsAsFactors = FALSE)
+
+write.table(glm_df, file = "bb_gweis.phent.glm.linear", col.names = TRUE, row.names = FALSE, quote = FALSE, sep = "\t")
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
 # Step 5: Munge for LDSC
 cat("Step 5: Munging for LDSC...\n")
 munge_res <- munge_ldsc_gcim(munge_path  = "/home/567/zw6700/ldsc/munge_sumstats.py", glm_file    = gweis_res,
