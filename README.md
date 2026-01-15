@@ -91,15 +91,15 @@ cat("Step 1: Running discovery GWAS...\n")
 gwas_res <- b_gwas(plink_path = plink, "dis_mydata", "dis_cov", threads = 40)
 # Step 2: Compute PRS
 cat("Step 2: Computing PRS in target...\n")
-prs_res <- prs_scores(plink_path = plink, tar_mydata = tar_geno, score_file = gwas_res, threads = 40)
+prs_res <- prs_scores(plink_path = plink, "tar_mydata", score_file = gwas_res, threads = 40)
 
 # Step 3: Replace exposure with PRS
 cat("Step 3: Replacing exposure with PRS...\n")
-replaced_res <- replace_covariate_with_prs(dis_cov_file = tar_covar, prs_file = prs_res, on_missing = "stop")
+replaced_res <- replace_covariate_with_prs("tar_covar", prs_file = prs_res, on_missing = "stop")
 
 # Step 4: GWEIS
 cat("Step 4: Running GWEIS...\n")
-gweis_res <- q_gweis(plink_path = plink, tar_mydata = tar_geno, tar_pheno_file = tar_pheno, tar_covar_file = replaced_res, int_covar_index = 1, threads = 40)
+gweis_res <- q_gweis(plink_path = plink, "tar_mydata", "tar_pheno", tar_covar_file = replaced_res, int_covar_index = 1, threads = 40)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
 glm_df <- read.table(gweis_res$glm_file, header = TRUE, comment.char = "", stringsAsFactors = FALSE)
 
@@ -136,29 +136,22 @@ menge_path <- "<menge_path>/munge_sumstats.py"
 ldsc_path <- "<ldsc_path>/ldsc.py"
 hm3_snps <- "<snplst_path>/w_hm3.snplist"
 ld_scores <- "<ld_ref_path>/eur_w_ld_chr/"
-# Discovery data
-dis_geno <- "<geno_path>/dis_mydata"
-dis_pheno <- "<tar_exp_path>/exp_dis"
-# Target data
-tar_geno <- "<geno_path>/tar_mydata"
-tar_pheno <- "<tar_pheno_path>/outcome_tar"
-tar_covar <- "<tar_cov_path>/exp_tar"
 
 # 1) GWAS -> score file
 # Step 1: Discovery GWAS
 cat("Step 1: Running discovery GWAS...\n")
-gwas_res <- q_gwas(plink_path = plink, dis_mydata = dis_geno, dis_cov_file = dis_pheno, threads = 40)
+gwas_res <- q_gwas(plink_path = plink, "dis_mydata", "dis_pheno", threads = 40)
 
 # Step 2: Compute PRS
 cat("Step 2: Computing PRS in target...\n")
-prs_res <- prs_scores(plink_path = plink, tar_mydata = tar_geno, score_file = gwas_res, threads = 40)
+prs_res <- prs_scores(plink_path = plink, "tar_mydata", score_file = gwas_res, threads = 40)
 # Step 3: Replace exposure with PRS
 cat("Step 3: Replacing exposure with PRS...\n")
-replaced_res <- replace_covariate_with_prs(dis_cov_file = tar_covar, prs_file = prs_res, on_missing = "stop")
+replaced_res <- replace_covariate_with_prs("tar_covar", prs_file = prs_res, on_missing = "stop")
 
 # Step 4: GWEIS
 cat("Step 4: Running GWEIS...\n")
-gweis_res <- b_gweis(plink_path = plink, tar_mydata = tar_geno, tar_pheno_file = tar_pheno, tar_covar_file = replaced_res, int_covar_index = 1, threads = 40)
+gweis_res <- b_gweis(plink_path = plink, "tar_mydata", "tar_pheno", tar_covar_file = replaced_res, int_covar_index = 1, threads = 40)
 
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
 glm_df <- read.table(gweis_res$glm_file, header = TRUE, comment.char = "", stringsAsFactors = FALSE)
@@ -198,29 +191,22 @@ menge_path <- "<menge_path>/munge_sumstats.py"
 ldsc_path <- "<ldsc_path>/ldsc.py"
 hm3_snps <- "<snplst_path>/w_hm3.snplist"
 ld_scores <- "<ld_ref_path>/eur_w_ld_chr/"
-# Discovery data
-dis_geno <- "<geno_path>/dis_mydata"
-dis_pheno <- "<tar_exp_path>/exp_dis"
-# Target data
-tar_geno <- "<geno_path>/tar_mydata"
-tar_pheno <- "<tar_pheno_path>/outcome_tar"
-tar_covar <- "<tar_cov_path>/exp_tar"
 
 # Step 1: Discovery GWAS
 cat("Step 1: Running discovery GWAS...\n")
-gwas_res <- b_gwas(plink_path = plink, dis_mydata = dis_geno, dis_cov_file = dis_pheno, threads = 40)
+gwas_res <- b_gwas(plink_path = plink, "dis_mydata", "dis_pheno", threads = 40)
 
 # Step 2: Compute PRS
 cat("Step 2: Computing PRS in target...\n")
-prs_res <- prs_scores(plink_path = plink, tar_mydata = tar_geno, score_file = gwas_res, threads = 40)
+prs_res <- prs_scores(plink_path = plink, "tar_mydata", score_file = gwas_res, threads = 40)
 
 # Step 3: Replace exposure with PRS
 cat("Step 3: Replacing exposure with PRS...\n")
-replaced_res <- replace_covariate_with_prs(dis_cov_file = tar_covar, prs_file = prs_res, on_missing = "stop")
+replaced_res <- replace_covariate_with_prs("tar_covar", prs_file = prs_res, on_missing = "stop")
 
 # Step 4: GWEIS
 cat("Step 4: Running GWEIS...\n")
-gweis_res <- b_gweis(plink_path = plink, tar_mydata = tar_geno, tar_pheno_file = tar_pheno, tar_covar_file = replaced_res, int_covar_index = 1, threads = 40)
+gweis_res <- b_gweis(plink_path = plink, "tar_mydata", "tar_pheno", tar_covar_file = replaced_res, int_covar_index = 1, threads = 40)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
 glm_df <- read.table(gweis_res$glm_file, header = TRUE, comment.char = "", stringsAsFactors = FALSE)
 
