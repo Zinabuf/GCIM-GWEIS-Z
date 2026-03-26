@@ -73,6 +73,8 @@ file.copy(final_res$output_file, "gcim_gcim_z_qq_adjusted.txt", overwrite = TRUE
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
  ~~~
 
+<img width="1900" height="1139" alt="image" src="https://github.com/user-attachments/assets/2d30e953-e85c-4804-a654-16144045ed82" />
+
 ### 2. Quantitative Outcomes with Binary Exposures
 
 ~~~
