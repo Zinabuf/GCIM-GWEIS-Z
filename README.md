@@ -18,9 +18,9 @@ To run the GCIM-GWEIS-Z pipeline, the following external software must be instal
    [Plink](https://www.cog-genomics.org/plink/2.0/) and 
    [LDSC](https://github.com/bulik/LDSC). 
 #### Additional Resources for LD Score Regression
-**HapMap3 SNP list***:
+**HapMap3 SNP list**:
 `w_hm3.snplist` (used for SNP filtering and harmonization)
-European LD scores:
+**European LD scores**:
 `eur_w_ld_chr/` (used as the LD reference panel)
 
 ## 2. Load the library
