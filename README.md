@@ -17,8 +17,13 @@ install_github("Zinabuf/GCIM-GWEIS-Z")
 To run the GCIM-GWEIS-Z pipeline, the following external software must be installed and accessible from your system: 
    [Plink](https://www.cog-genomics.org/plink/2.0/) and 
    [LDSC](https://github.com/bulik/LDSC). 
-## 2. Load the library
+#### Additional Resources for LD Score Regression
+**HapMap3 SNP list***:
+`w_hm3.snplist` (used for SNP filtering and harmonization)
+European LD scores:
+`eur_w_ld_chr/` (used as the LD reference panel)
 
+## 2. Load the library
 
 ~~~
 library(GCIM.GWEIS.Z)
@@ -140,11 +145,11 @@ gweis_res <- q_gweis(plink_path = plink, "tar_mydata", "tar_pheno", tar_covar_fi
 
 # Step 5: Munge for LDSC
 cat("Step 5: Munging for LDSC...\n")
-munge_res <- munge_ldsc_gcim(munge_path  = "/home/567/zw6700/ldsc/munge_sumstats.py", glm_file    = gweis_res, hm3_snplist = hm3_snps,
-  python      = "/home/567/zw6700/anaconda3/envs/ldsc/bin/python")
+munge_res <- munge_ldsc_gcim(munge_path  = "/<path>/ldsc/munge_sumstats.py", glm_file    = gweis_res, hm3_snplist = hm3_snps,
+  python      = "/<path>/anaconda3/envs/ldsc/bin/python")
 # Step 6: LDSC heritability
 cat("Step 6: Computing LDSC intercept...\n")
-ldsc_res <- ldsc_h2_gcim(ldsc_path = "/home/567/zw6700/ldsc/ldsc.py", python = "/home/567/zw6700/anaconda3/envs/ldsc/bin/python", munged_sumstats = munge_res,
+ldsc_res <- ldsc_h2_gcim(ldsc_path = "/<path>/ldsc/ldsc.py", python = "/<path>/anaconda3/envs/ldsc/bin/python", munged_sumstats = munge_res,
   ref_ld_chr = ld_scores)
 # Step 7: Adjust Z-scores
 cat("Step 7: Adjusting Z-scores...\n")
@@ -198,11 +203,11 @@ write.table(glm_df, file = "bq_gweis.phent.glm.linear", col.names = TRUE, row.na
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
 # Step 5: Munge for LDSC
 cat("Step 5: Munging for LDSC...\n")
-munge_res <- munge_ldsc_gcim(munge_path  = "/home/567/zw6700/ldsc/munge_sumstats.py", glm_file    = gweis_res, hm3_snplist = hm3_snps,
-  python      = "/home/567/zw6700/anaconda3/envs/ldsc/bin/python")
+munge_res <- munge_ldsc_gcim(munge_path  = "/<path>/ldsc/munge_sumstats.py", glm_file    = gweis_res, hm3_snplist = hm3_snps,
+  python      = "/<path>/anaconda3/envs/ldsc/bin/python")
 # Step 6: LDSC heritability
 cat("Step 6: Computing LDSC intercept...\n")
-ldsc_res <- ldsc_h2_gcim(ldsc_path = "/home/567/zw6700/ldsc/ldsc.py", python = "/home/567/zw6700/anaconda3/envs/ldsc/bin/python",
+ldsc_res <- ldsc_h2_gcim(ldsc_path = "/<path>/ldsc/ldsc.py", python = "/<path>/anaconda3/envs/ldsc/bin/python",
   munged_sumstats = munge_res, ref_ld_chr = ld_scores)
 
 # Step 7: Adjust Z-scores
