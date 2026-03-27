@@ -220,6 +220,8 @@ zdf <- read.table(final_res$output_file, header = TRUE, stringsAsFactors = FALSE
 file.copy(final_res$output_file, "gcim_gcim_z_bq_adjusted.txt", overwrite = TRUE)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
  ~~~
+### Result
+<img width="1929" height="1073" alt="image" src="https://github.com/user-attachments/assets/66ee2335-0f5f-41cd-bf75-1ba6a7a5546d" />
 
 
 
