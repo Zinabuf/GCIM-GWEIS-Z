@@ -155,13 +155,13 @@ zdf <- read.table(final_res$output_file, header = TRUE, stringsAsFactors = FALSE
 file.copy(final_res$output_file, "gcim_gcim_z_qq_adjusted.txt", overwrite = TRUE)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
  ~~~
-###Result 
+### Result 
 
 
 <img width="1900" height="1139" alt="image" src="https://github.com/user-attachments/assets/2d30e953-e85c-4804-a654-16144045ed82" />
 
 
-### 3. Binary Outcomes with Quantitative Exposures 
+### 2. Binary Outcomes with Quantitative Exposures 
 
 ~~~
 #load library
