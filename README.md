@@ -210,12 +210,12 @@ Z-score adjustment completed successfully!
   Valid SNPs: 1000
 
 Significance counts (p < 0.05):
-  Original:  59 / 1000 (5.90%)
-  Adjusted:  67 / 1000 (6.70%)
+  Original(GCIM-GWEIS):  59 / 1000 (5.90%)
+  Adjusted(GCIM-GWEIS-Z):  67 / 1000 (6.70%)
 
 Bonferroni-corrected (p < 5.00e-05):
-  Original:  0
-  Adjusted:  0
+  Original(GCIM-GWEIS):  0
+  Adjusted(GCIM-GWEIS-Z):  0
 ~~~
 
 
