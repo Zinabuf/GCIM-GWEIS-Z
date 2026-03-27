@@ -57,7 +57,6 @@ Example files are provided in the data/ directory:
 `mydata_tar.bed`
 `mydata_tar.bim`
 `mydata_tar.fam`
-Ensure that standard quality control (QC) procedures (e.g., SNP missingness, minor allele frequency, and Hardy–Weinberg equilibrium filtering) are applied before analysis.
 ### 3.2. Input File Format (Discovery Dataset for GWAS/PRS Construction)
 The discovery dataset is used to perform GWAS and construct polygenic risk scores (PRS) for the exposure variable under the proposed causal directions. 
 Exposure + Covariates File
