@@ -19,7 +19,7 @@ To run the GCIM-GWEIS-Z pipeline, the following external software must be instal
    [LDSC](https://github.com/bulik/LDSC). 
 #### Additional Resources for LD Score Regression
 **HapMap3 SNP list**:
-`w_hm3.snplist` (used for SNP filtering and harmonization)
+`w_hm3.snplist` (used for SNP filtering and harmonization)  and 
 **European LD scores**:
 `eur_w_ld_chr/` (used as the LD reference panel)
 
