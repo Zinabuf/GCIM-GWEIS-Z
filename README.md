@@ -160,7 +160,8 @@ file.copy(final_res$output_file, "tBil_bmi_gcim-gweis-z.txt", overwrite = TRUE)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
  ~~~
 ### Result 
-GCIM-GWEIS
+Here are the first few lines of a typical **GCIM-GWEIS** output file `tBil_bmi_gcim-gweis.txt`
+
 ~~~
 X.CHROM	POS	ID	REF	ALT	PROVISIONAL_REF.	A1	OMITTED	A1_FREQ	TEST	OBS_CT	BETA	SE	T_STAT	P	ERRCODE
 1	5348270	rs4417082	G	A	Y	A	G	0.42228	ADD	193	0.0673094	0.101462	0.663392	0.507958	.
@@ -183,7 +184,7 @@ X.CHROM	POS	ID	REF	ALT	PROVISIONAL_REF.	A1	OMITTED	A1_FREQ	TEST	OBS_CT	BETA	SE	T
 1	5348270	rs4417082	G	A	Y	A	G	0.42228	ADDxPRS	193	0.0832006	0.108047	0.770043	0.442318	.
 ~~~
 
-GCIM-GWEUIS-Z
+Here are the first few lines of a typical **GCIM-GWEIS-Z** output file `tBil_bmi_gcim-gweis-z.txt`
 
 ~~~
 #CHROM	POS	ID	REF	ALT	PROVISIONAL_REF?	A1	OMITTED	A1_FREQ	TEST	OBS_CT	BETA	SE	T_STAT	P	ERRCODE	z_original	z_adj_int	p_original	p_value_int_adj	ldsc_intercept_used
@@ -236,23 +237,23 @@ ld_scores <- "<ld_ref_path>/eur_w_ld_chr/"
 # 1) GWAS -> score file
 # Step 1: Discovery GWAS
 cat("Step 1: Running discovery GWAS...\n")
-gwas_res <- q_gwas(plink_path = plink, "dis_mydata", "dis_pheno", threads = 40)
+gwas_res <- q_gwas(plink_path = plink, "mydata.dis", "tBil_dis_cov.txt", threads = 40)
 
 # Step 2: Compute PRS
 cat("Step 2: Computing PRS in target...\n")
-prs_res <- prs_scores(plink_path = plink, "tar_mydata", score_file = gwas_res, threads = 40)
+prs_res <- prs_scores(plink_path = plink, "mydata.tar", score_file = gwas_res, threads = 40)
 # Step 3: Replace exposure with PRS
 cat("Step 3: Replacing exposure with PRS...\n")
-replaced_res <- replace_covariate_with_prs("tar_covar", prs_file = prs_res, on_missing = "stop")
+replaced_res <- replace_covariate_with_prs("tBil_tar_cov.txt", prs_file = prs_res, on_missing = "stop")
 
 # Step 4: GWEIS
 cat("Step 4: Running GWEIS...\n")
-gweis_res <- b_gweis(plink_path = plink, "tar_mydata", "tar_pheno", tar_covar_file = replaced_res, int_covar_index = 1, threads = 40)
+gweis_res <- b_gweis(plink_path = plink, "mydata.tar", "bmi_tar_out_b.txt", tar_covar_file = replaced_res, int_covar_index = 1, threads = 40)
 
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
 glm_df <- read.table(gweis_res$glm_file, header = TRUE, comment.char = "", stringsAsFactors = FALSE)
 
-write.table(glm_df, file = "bq_gweis.phent.glm.linear", col.names = TRUE, row.names = FALSE, quote = FALSE, sep = "\t")
+write.table(glm_df, file = "tBil_bmi_gcim-gweis.txt", col.names = TRUE, row.names = FALSE, quote = FALSE, sep = "\t")
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
 # Step 5: Munge for LDSC
 cat("Step 5: Munging for LDSC...\n")
@@ -270,11 +271,73 @@ final_res <- gcim_z_adjust(glm_file = gweis_res, intercept_file = ldsc_res)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
 # fully adjusted outputs 
 zdf <- read.table(final_res$output_file, header = TRUE, stringsAsFactors = FALSE)
-file.copy(final_res$output_file, "gcim_gcim_z_bq_adjusted.txt", overwrite = TRUE)
+file.copy(final_res$output_file, "tBil_bmi_gcim-gweis-z.txt", overwrite = TRUE)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
  ~~~
 ### Result
-<img width="1929" height="1073" alt="image" src="https://github.com/user-attachments/assets/66ee2335-0f5f-41cd-bf75-1ba6a7a5546d" />
 
+Here are the first few lines of a typical **GCIM-GWEIS** output file `tBil_bmi_gcim-gweis.txt`
+ 
+ ~~~
+X.CHROM	POS	ID	REF	ALT	PROVISIONAL_REF.	A1	OMITTED	A1_FREQ	FIRTH.	TEST	OBS_CT	OR	LOG.OR._SE	Z_STAT	P	ERRCODE
+1	5348270	rs4417082	G	A	Y	A	G	0.42228	N	ADD	193	1.31505	0.246018	1.11322	0.265612	.
+1	5348270	rs4417082	G	A	Y	A	G	0.42228	N	PRS	193	0.738468	0.314117	-0.965172	0.334459	.
+1	5348270	rs4417082	G	A	Y	A	G	0.42228	N	tdi	193	1.02867	0.176507	0.160157	0.872758	.
+1	5348270	rs4417082	G	A	Y	A	G	0.42228	N	age	193	0.732506	0.180917	-1.72059	0.0853251	.
+1	5348270	rs4417082	G	A	Y	A	G	0.42228	N	sex	193	1.01749	0.172892	0.100275	0.920126	.
+1	5348270	rs4417082	G	A	Y	A	G	0.42228	N	PC1	193	0.719969	0.189486	-1.73389	0.0829381	.
+1	5348270	rs4417082	G	A	Y	A	G	0.42228	N	PC2	193	0.783275	0.177768	-1.3741	0.169412	.
+1	5348270	rs4417082	G	A	Y	A	G	0.42228	N	PC3	193	0.698797	0.178139	-2.01189	0.0442316	.
+1	5348270	rs4417082	G	A	Y	A	G	0.42228	N	PC4	193	0.542727	0.262947	-2.32423	0.0201132	.
+1	5348270	rs4417082	G	A	Y	A	G	0.42228	N	PC5	193	1.58711	0.259453	1.78034	0.07502	.
+1	5348270	rs4417082	G	A	Y	A	G	0.42228	N	PC6	193	1.17775	0.187654	0.871859	0.383285	.
+1	5348270	rs4417082	G	A	Y	A	G	0.42228	N	PC7	193	1.04622	0.194361	0.232457	0.816183	.
+1	5348270	rs4417082	G	A	Y	A	G	0.42228	N	PC8	193	0.908103	0.197807	-0.487329	0.626025	.
+1	5348270	rs4417082	G	A	Y	A	G	0.42228	N	PC9	193	1.09363	0.198042	0.451916	0.651329	.
+1	5348270	rs4417082	G	A	Y	A	G	0.42228	N	PC10	193	1.43679	0.190207	1.90536	0.0567331	.
+1	5348270	rs4417082	G	A	Y	A	G	0.42228	N	center	193	1.22373	0.180884	1.11621	0.264332	.
+1	5348270	rs4417082	G	A	Y	A	G	0.42228	N	batch	193	1.01479	0.17541	0.0836716	0.933318	.
+1	5348270	rs4417082	G	A	Y	A	G	0.42228	N	ADDxPRS	193	1.3307	0.256681	1.11307	0.265677	.
+~~~
 
+Here are the first few lines of a typical **GCIM-GWEIS-Z** output file `tBil_bmi_gcim-gweis-z.txt`
+
+~~~
+#CHROM	POS	ID	REF	ALT	PROVISIONAL_REF?	A1	OMITTED	A1_FREQ	FIRTH?	TEST	OBS_CT	OR	LOG(OR)_SE	Z_STAT	P	ERRCODE	z_original	z_adj_int	p_original	p_value_int_adj	ldsc_intercept_used
+1	5348270	rs4417082	G	A	Y	A	G	0.42228	N	ADDxPRS	193	1.3307	0.256681	1.11307	0.265677	.	1.11307	1.08156840871777	0.265677	0.27944434827589	1.0591
+1	8287391	rs11121137	G	A	Y	A	G	0.234848	N	ADDxPRS	198	0.737956	0.247281	-1.22885	0.219127	.	-1.22885	-1.19407165681658	0.219127	0.232449939152306	1.0591
+1	8407287	rs10399665	T	C	Y	C	T	0.4575	N	ADDxPRS	200	1.41512	0.236067	1.47082	0.141339	.	1.47082	1.42919353401877	0.141339	0.152948615642988	1.0591
+1	12642243	rs12029485	T	G	Y	G	T	0.0351759	N	ADDxPRS	199	0.417984	0.896863	-0.972625	0.33074	.	-0.972625	-0.945098218017842	0.33074	0.344608735006639	1.0591
+1	16612193	rs12739564	T	G	Y	G	T	0.010101	N	ADDxPRS	198	3.43898e-36	4584.15	-0.0178131	0.985788	.	-0.0178131	-0.0173089618993688	0.985788	0.986190136113321	1.0591
+1	17550601	rs3003482	A	G	Y	G	A	0.1625	N	ADDxPRS	200	1.39586	0.332644	1.00261	0.31605	.	1.00261	0.974234596444538	0.31605	0.329940070453489	1.0591
+1	22653550	rs4433361	C	T	Y	T	C	0.347716	N	ADDxPRS	197	1.07128	0.261877	0.262909	0.792621	.	0.262909	0.25546827132847	0.792621	0.798361446553886	1.0591
+1	30198580	rs2376723	A	G	Y	G	A	0.268229	N	ADDxPRS	192	0.792321	0.242232	-0.961017	0.336544	.	-0.961017	-0.933818742254057	0.336544	0.350397399902705	1.0591
+1	30274404	rs16832918	G	A	Y	A	G	0.223077	N	ADDxPRS	195	1.03062	0.303478	0.0993957	0.920824	.	0.0993957	0.0965826489640262	0.920824	0.923057836188101	1.0591
+1	30661242	rs4245643	A	G	Y	G	A	0.43	N	ADDxPRS	200	0.992334	0.274819	-0.028003	0.97766	.	-0.028003	-0.0272104720721281	0.97766	0.978291863294033	1.0591
+1	37041069	rs4653197	C	T	Y	T	C	0.2	N	ADDxPRS	195	1.19127	0.313164	0.558867	0.576252	.	0.558867	0.543050205175661	0.576252	0.587095235807665	1.0591
+1	37621304	rs4652937	C	T	Y	T	C	0.333333	N	ADDxPRS	195	1.27867	0.254167	0.967152	0.333468	.	0.967152	0.939780112327353	0.333468	0.347330362085713	1.0591
+1	39952822	rs1569053	C	T	Y	T	C	0.1125	N	ADDxPRS	200	1.4798	0.428001	0.915671	0.35984	.	0.915671	0.889756103730231	0.35984	0.373596861561436	1.0591
+1	46505309	rs1707321	A	G	Y	A	G	0.4975	N	ADDxPRS	200	1.28825	0.241528	1.04869	0.29432	.	1.04869	1.01901046164054	0.29432	0.308197999914333	1.0591
+1	53153044	rs407856	T	C	Y	C	T	0.38	N	ADDxPRS	200	0.807643	0.236092	-0.904879	0.365529	.	-0.904879	-0.879269533912625	0.365529
+~~~
+ 
+Number of Significant SNPs
+
+~~~
+Z-score adjustment completed successfully!
+  Correction factor (sqrt(intercept)): 1.029126
+  Valid SNPs: 1000
+
+Significance counts (p < 0.05):
+  Original:  67 / 1000 (6.70%)
+  Adjusted:  62 / 1000 (6.20%)
+
+Bonferroni-corrected (p < 5.00e-05):
+  Original:  0
+  Adjusted:  0
+~~~
+
+Here is a revised version:
+
+All results presented above were generated using **BMI as the outcome** and **total bilirubin as the exposure**. Example input files and code for other outcome-exposure combinations are also provided in the `data/` directory. For comparison of your output with the toy example results, please refer to the corresponding `.Rout` files.
 
