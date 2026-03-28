@@ -337,7 +337,5 @@ Bonferroni-corrected (p < 5.00e-05):
   Adjusted:  0
 ~~~
 
-Here is a revised version:
-
 All results presented above were generated using **BMI as the outcome** and **total bilirubin as the exposure**. Example input files and code for other outcome-exposure combinations are also provided in the `data/` directory. For comparison of your output with the toy example results, please refer to the corresponding `.Rout` files.
 
