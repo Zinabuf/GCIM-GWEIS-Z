@@ -31,9 +31,9 @@ library(GCIM.GWEIS.Z)
 
 # 3. Data Preparation 
  
-The dataset must be divided into two independent, non-overlapping subsets: a PRS training sample and an analysis sample. This split must be applied consistently across all inputs, including genotype data, phenotypes (outcomes), environmental exposures, and covariates.
+The dataset must be divided into two independent, non-overlapping subsets: a polygenic risk score (PRS) training sample and an analysis sample. This split must be applied consistently across all inputs, including genotype data, phenotypes (outcomes), environmental exposures, and covariates.
 
-The PRS training sample was used to obtain SNP effect size estimates from GWAS summary statistics for polygenic risk score construction, whereas the independent analysis sample was used to perform GWEIS and evaluate genotype-by-environment(GXE) interactions, including inference on causal direction and assessment of test statistic inflation.
+The PRS training sample was used to obtain SNP effect size estimates from GWAS summary statistics for PRS construction. In contrast, the independent analysis sample was used to perform GWEIS and evaluate genotype-by-environment (GXE) interactions, including inference on causal direction and assessment of test-statistic inflation.
 
 Example datasets are provided in the `data/` directory. All datasets—including genotype data, phenotypes (outcome and exposure), and covariates are simulated. These examples illustrate the causal directional analysis of G×E interaction effects:
 
@@ -58,19 +58,24 @@ Example files are provided in the data/ directory:
 `mydata.analysis.bed`
 `mydata.analysis.bim`
 `mydata.analysis.fam`
-## 3.2. Input File Format (Discovery Dataset for GWAS/PRS Construction)
-The discovery dataset is used to perform GWAS and construct polygenic risk scores (PRS) for the exposure variable under the proposed causal directions. 
-Exposure + Covariates File
-The input file must include the following columns: `tBil_dis_cov.txt`
+## 3.2. Steps for the analysis pipeline
+If the required intermediate results from prior analyses are already available, the pipeline can be initiated at any appropriate step. For example, to evaluate inflation in existing GWEIS results, the workflow can begin at Step 5, Step 6, or Step 7, depending on the specific inputs available from previous analyses, even if they were generated under different analytical settings.
+### Step 1. GWAS for PRS Construction
+The PRS training sample is used to perform GWAS and derive polygenic risk scores for the exposure trait under the hypothesised causal direction. Example datasets for a quantitative outcome are provided in the `quantitative_outcome/` data directory, together with the script `gcim_gweis_P.R`, assuming **trait1** is specified as the outcome.
+Exposure + Covariates File: The input file must include the following columns: `trait2_PRStrained_cov.txt`
 `FID`
 `IID`
-`bilirubin`
-`TDI, Age, Sex, ..., Covar_n`
+`trait2`
+`TDI, Age, pc1, ..., Covar_n`
 
 If the exposure is binary, use PLINK’s default coding :
 
 `1` = Control
 `2` = Case
+
+### Step 2. PRS Construction
+If Step 1 is performed (i.e., GWAS summary statistics are generated and extracted automatically), PRS construction can then be carried out in the analysis sample of genotype data. Alternatively, if external GWAS summary statistics are available, the required SNP-level information, such as SNP identifiers (ID), effect alleles (A1), and effect size estimates, should be extracted and formatted as an input file. Effect sizes should be specified as regression coefficients (β) for quantitative traits and as log odds ratios (logOR) for binary traits, ensuring consistency with the analysis sample used for PRS estimation. 
+### Step 3. Replacing exposure with PRS
 
 ## 3.3. Genome-wide environment interaction study (GWEIS)
 
