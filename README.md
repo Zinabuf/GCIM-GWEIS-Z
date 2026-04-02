@@ -38,6 +38,7 @@ The PRS training sample was used to obtain SNP effect size estimates from GWAS s
 Example datasets are provided in the `data/` directory. All datasets—including genotype data, phenotypes (outcome and exposure), and covariates are simulated. These examples illustrate the causal directional analysis of G×E interaction effects:
 
  **Trait 1 as the outcome and Trait 2 as the exposure**, and
+ 
  **Trait 2 as the outcome and Trait 1 as the exposure**.
 
 They are intended to demonstrate how to correctly specify the input structure for each causal direction. In each case, the exposure variable should be defined within a dedicated data frame, along with any covariates included for adjustment in the model.
