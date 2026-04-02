@@ -1,22 +1,22 @@
 library(GCIM.GWEIS.Z)
 # Setup paths
-plink <- "/data/alh-admzw/bscaling/basic_sim/plink2"
-munge_path <- "/data/alh-admzw/ldsc/munge_sumstats.py"
-python     <- "/data/alh-admzw/anaconda3/envs/ldsc/bin/python"
+plink <- "<path>/bscaling/basic_sim/plink2"
+munge_path <- "<path>/ldsc/munge_sumstats.py"
+python     <- "<path>/anaconda3/envs/ldsc/bin/python"
 
-#munge_path <- "/home/567/zw6700/ldsc/munge_sumstats.py"
-ldsc_path <- "/data/alh-admzw/ldsc/ldsc.py"
-hm3_snps <- "/data/alh-admzw/ldsc_chapter3/real_data/w_hm3.snplist"
-ld_scores <- "/data/alh-admzw/ldsc_chapter3/real_data/eur_w_ld_chr/"
-python <- "/data/alh-admzw/anaconda3"
-# Discovery data
-dis_geno <- "/data/alh-admzw/ldsc_chapter3/real_data/large_target/revised/true/bil_bmi/package/toydata/mydata.dis"
-#dis_pheno <- "/scratch/ny48/zw6700/Chpater_3/null.corr/scaled/null_corr_rxe05/g08/g8r8/phend"
+#munge_path <- "<path>/ldsc/munge_sumstats.py"
+ldsc_path <- "<path>/ldsc/ldsc.py"
+hm3_snps <- "<path>/ldsc_chapter3/real_data/w_hm3.snplist"
+ld_scores <- "<path>/ldsc_chapter3/real_data/eur_w_ld_chr/"
+python <- "<path>/anaconda3"
+# PRS trained sample
+#mydata.PRStrained <- "<path>"
+#trait1_PRStrained_cov.txt <- "<path>"
 
-# Target data
-tar_geno <- "/data/alh-admzw/ldsc_chapter3/real_data/large_target/revised/true/bil_bmi/package/toydata/mydata.tar"
-#tar_pheno <- "/scratch/ny48/zw6700/Chpater_3/null.corr/scaled/null_corr_rxe05/g08/g8r8/phent"
-#tar_covar <- "/scratch/ny48/zw6700/Chpater_3/null.corr/scaled/null_corr_rxe05/g08/g8r8/covt"
+# Analysis sample
+#mydata.analysis.fam <- "<path>"
+#trait1_analysis_out.txt<- "<path>"
+#trait2_analysis_cov.txt <- "<path>"
 
 # Step 1: Discovery GWAS
 cat("Step 1: Running discovery GWAS...\n")
