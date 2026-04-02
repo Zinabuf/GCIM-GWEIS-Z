@@ -211,16 +211,20 @@ Number of Significant SNPs
 
 ~~~
 Z-score adjustment completed successfully!
-  Correction factor (sqrt(intercept)): 0.970000
+  Correction factor (sqrt(intercept)): 0.876926
   Valid SNPs: 1000
 
 Significance counts (p < 0.05):
-  Original(GCIM-GWEIS):  59 / 1000 (5.90%)
-  Adjusted(GCIM-GWEIS-Z):  67 / 1000 (6.70%)
+  Original:  65 / 1000 (6.50%)
+  Adjusted:  101 / 1000 (10.10%)
 
-Bonferroni-corrected (p < 5.00e-05):
-  Original(GCIM-GWEIS):  0
-  Adjusted(GCIM-GWEIS-Z):  0
+Bonferroni-corrected for number of SNPs(p < 5.00e-05):
+  Original:  0
+  Adjusted:  1
+
+Genome-wide significance threshold(p < 5e-8):
+  Original_genomewide_bonf:  0
+  Adjusted_genomewide_bonf:  0
 ~~~
 
 
