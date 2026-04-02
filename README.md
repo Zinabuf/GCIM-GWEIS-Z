@@ -66,7 +66,7 @@ The PRS training sample is used to perform GWAS and derive polygenic risk scores
 Exposure + Covariates File: The input file must include the following columns: `trait2_PRStrained_cov.txt`
 `FID`
 `IID`
-`trait2`
+`trait2` (exposure)
 `TDI, Age, pc1, ..., Covar_n`
 
 If the exposure is binary, use PLINK’s default coding :
@@ -93,7 +93,7 @@ The exposure–covariate file `trait2_analysis_cov.txt` should contain:
 * FID
 * IID
 * PRS or trait2 (exposure variable)
-* Covariates used for adjustment (e.g., TDI, age, principal components such as PC1, …, up to covar_n)
+* `TDI, Age, pc1, ..., Covar_n`
 
 In this framework, conventional GWEIS proceeds using the observed exposure variable directly for SNP × exposure interaction testing. In contrast, GCIM-based GWEIS replaces the observed exposure with its corresponding PRS, enabling interaction modelling based on genetically predicted exposure.
 
