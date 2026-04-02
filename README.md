@@ -111,7 +111,7 @@ Reverse direction: Exposure = BMI and Outcome = Total bilirubin
 All other components (genotype data, covariates, file structure, and coding conventions) remain unchanged.
 
 # 4. Analysis pipeline
-## 1. Quantitative Outcomes with Quantitative Exposures 
+## 4.1. Quantitative Outcomes with Quantitative Exposures 
 
 ~~~
 #load library
@@ -228,7 +228,7 @@ Genome-wide significance threshold(p < 5e-8):
 ~~~
 
 
-## 2. Binary Outcomes with Quantitative Exposures 
+## 4.2. Binary Outcomes with Quantitative Exposures 
 
 ~~~
 #load library
