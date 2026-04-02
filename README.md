@@ -53,6 +53,7 @@ Example files are provided in the data/ directory:
 `mydata.PRStrained.bed`
 `mydata.PRStrained.bim`
 `mydata.PRStrained.fan`
+
 ***Analysis sample***
 `mydata.analysis.bed`
 `mydata.analysis.bim`
