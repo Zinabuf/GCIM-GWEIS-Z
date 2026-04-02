@@ -3,10 +3,10 @@
 ---
 
 The Genetic Causality Inference Model (GCIM) for genome-wide-by-environment interaction studies (GWEIS), incorporating adjusted z-scores (Z), is a statistical framework designed to infer the causal direction of SNP-by-environment interactions and to correct inflation in GxE effects arising from heteroscedasticity.
-#### Authors: Zinabu Fentaw and S.Hong Lee
+## Authors: Zinabu Fentaw and S.Hong Lee
 
    
-## 1. Package installation 
+# 1. Package installation 
 From GitHub 
 
 ~~~
@@ -17,19 +17,19 @@ install_github("Zinabuf/GCIM-GWEIS-Z")
 To run the GCIM-GWEIS-Z pipeline, the following external software must be installed and accessible from your system: 
    [Plink](https://www.cog-genomics.org/plink/2.0/) and 
    [LDSC](https://github.com/bulik/LDSC). 
-#### Additional Resources for LD Score Regression
+### Additional Resources for LD Score Regression
 **HapMap3 SNP list**:
 `w_hm3.snplist` (used for SNP filtering and harmonization)  and 
 **European LD scores**:
 `eur_w_ld_chr/` (used as the LD reference panel)
 
-## 2. Load the library
+# 2. Load the library
 
 ~~~
 library(GCIM.GWEIS.Z)
 ~~~
 
-## 3. Data Preparation 
+# 3. Data Preparation 
  
 The dataset must be divided into two independent, non-overlapping subsets: a discovery dataset and a target dataset. This split must be applied consistently across all inputs, including genotype data, phenotypes (outcomes), environmental exposures, and covariates.
 
@@ -42,7 +42,7 @@ Example datasets are provided in the data/ directory. These illustrate two causa
 
 These examples are included to demonstrate how the input structure should be defined for both directions of analysis.
 
-#### 3.1. Genotype data 
+## 3.1. Genotype data 
 Genotype data must be provided in PLINK binary format, consisting of three files: `.bed`, `.bim`, and `.fam`.
 
 Separate genotype datasets are required for the discovery and target samples. These datasets must contain non-overlapping individuals and be consistently aligned with the corresponding phenotype and covariate files.
@@ -57,7 +57,7 @@ Example files are provided in the data/ directory:
 `mydata_tar.bed`
 `mydata_tar.bim`
 `mydata_tar.fam`
-### 3.2. Input File Format (Discovery Dataset for GWAS/PRS Construction)
+## 3.2. Input File Format (Discovery Dataset for GWAS/PRS Construction)
 The discovery dataset is used to perform GWAS and construct polygenic risk scores (PRS) for the exposure variable under the proposed causal directions. 
 Exposure + Covariates File
 The input file must include the following columns: `tBil_dis_cov.txt`
@@ -71,7 +71,7 @@ If the exposure is binary, use PLINK’s default coding :
 `1` = Control
 `2` = Case
 
-#### 3.3. Genome-wide environment interaction study (GWEIS)
+## 3.3. Genome-wide environment interaction study (GWEIS)
 
 The file should contain two separate `.txt` files for outcome ( `bmi_tar_out.txt`) and exposure with covariate files ('tBil_tar_cov.txt'): This is a .txt file containing the following columns in the specified order. Please note that the file should not have column headings. Therefore, the outcome file `bmi_tar_out.txt` will have the following essential column:
 
@@ -107,8 +107,8 @@ Reverse direction: Exposure = BMI and Outcome = Total bilirubin
 
 All other components (genotype data, covariates, file structure, and coding conventions) remain unchanged.
 
-## 4. Analysis pipeline
-### 1. Quantitative Outcomes with Quantitative Exposures 
+# 4. Analysis pipeline
+## 1. Quantitative Outcomes with Quantitative Exposures 
 
 ~~~
 #load library
@@ -159,7 +159,7 @@ zdf <- read.table(final_res$output_file, header = TRUE, stringsAsFactors = FALSE
 file.copy(final_res$output_file, "tBil_bmi_gcim-gweis-z.txt", overwrite = TRUE)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
  ~~~
-### Result 
+## Result 
 Here are the first few lines of a typical **GCIM-GWEIS** output file `tBil_bmi_gcim-gweis.txt`
 
 ~~~
@@ -220,7 +220,7 @@ Bonferroni-corrected (p < 5.00e-05):
 ~~~
 
 
-### 2. Binary Outcomes with Quantitative Exposures 
+## 2. Binary Outcomes with Quantitative Exposures 
 
 ~~~
 #load library
@@ -274,7 +274,7 @@ zdf <- read.table(final_res$output_file, header = TRUE, stringsAsFactors = FALSE
 file.copy(final_res$output_file, "tBil_bmi_gcim-gweis-z.txt", overwrite = TRUE)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
  ~~~
-### Result
+## Result
 
 Here are the first few lines of a typical **GCIM-GWEIS** output file `tBil_bmi_gcim-gweis.txt`
  
