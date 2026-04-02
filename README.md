@@ -351,5 +351,6 @@ Genome-wide significance threshold(p < 5e-8):
   Adjusted_genomewide_bonf:  0
 ~~~
 
-All results presented above were generated using **BMI as the outcome** and **total bilirubin as the exposure**. Example input files and code for other outcome-exposure combinations are also provided in the `data/` directory. For comparison of your output with the toy example results, please refer to the corresponding `.Rout` files.
+All results presented above were generated assuming **trait1 as the outcome** and **trait2 as the exposure**. Example input files and corresponding scripts for alternative outcome–exposure configurations are provided in the `data/` directory.
 
+To validate your results against the toy examples, please refer to the corresponding `.Rout` output files. The data directory includes example R scripts such as `gcim_gweis_p.R` and `gcim_gweis_r.R`, which implement the GCIM-GWEIS (-Z) model with **trait1** and **trait2** specified as the outcome, respectively. In addition, scripts such as `gweis_p.R` and `gweis_r.R` implement the conventional GWEIS (-Z) framework for **trait1** and **trait2**, respectively.
