@@ -35,7 +35,7 @@ The dataset must be divided into two independent, non-overlapping subsets: a pol
 
 The PRS training sample was used to obtain SNP effect size estimates from GWAS summary statistics for PRS construction. In contrast, the independent analysis sample was used to perform GWEIS and evaluate genotype-by-environment (GXE) interactions, including inference on causal direction and assessment of test-statistic inflation.
 
-Example datasets are provided in the `data/` directory. All datasets—including genotype data, phenotypes (outcome and exposure), and covariates are simulated. These examples illustrate the causal directional analysis of G×E interaction effects:
+Example datasets are provided in the `data/` directory. All datasets, including genotype data, phenotypes (outcome and exposure), and covariates, are simulated. These examples illustrate the causal directional analysis of G×E interaction effects:
 
  **Trait 1 as the outcome and Trait 2 as the exposure**, and
  
@@ -59,10 +59,11 @@ Example files are provided in the data/ directory:
 `mydata.analysis.bed`
 `mydata.analysis.bim`
 `mydata.analysis.fam`
+
 ## 3.2. Steps for the analysis pipeline
 If the required intermediate results from prior analyses are already available, the pipeline can be initiated at any appropriate step. For example, to evaluate inflation in existing GWEIS results, the workflow can begin at Step 5, Step 6, or Step 7, depending on the specific inputs available from previous analyses, even if they were generated under different analytical settings.
 ### Step 1. GWAS for PRS Construction
-The PRS training sample is used to perform GWAS and derive polygenic risk scores for the exposure trait under the hypothesised causal direction. Example datasets for a quantitative outcome are provided in the `quantitative_outcome/` data directory, together with the script `gcim_gweis_P.R`, assuming **trait1** is specified as the outcome.
+The PRS training sample is used to perform GWAS and derive PRS for the exposure trait under the hypothesised causal direction. Example datasets for a quantitative outcome are provided in the `quantitative_outcome/` data directory, together with the script `gcim_gweis_P.R`.
 Exposure + Covariates File: The input file must include the following columns: `trait2_PRStrained_cov.txt`
 `FID`
 `IID`
