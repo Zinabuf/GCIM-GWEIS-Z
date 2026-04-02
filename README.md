@@ -31,16 +31,16 @@ library(GCIM.GWEIS.Z)
 
 # 3. Data Preparation 
  
-The dataset must be divided into two independent, non-overlapping subsets: a discovery dataset and a target dataset. This split must be applied consistently across all inputs, including genotype data, phenotypes (outcomes), environmental exposures, and covariates.
+The dataset must be divided into two independent, non-overlapping subsets: a PRS training sample and an analysis sample. This split must be applied consistently across all inputs, including genotype data, phenotypes (outcomes), environmental exposures, and covariates.
 
-The discovery dataset is used to estimate SNP effects, while the target dataset is used for downstream evaluation and GCIM-based inference.
+The PRS training sample is used to estimate SNP effects, while the analysis sample is used to evaluate the GWEIS analysis (causal direction test and correction of inflation due to test statistics).
 
 Example datasets are provided in the data/ directory. These illustrate two causal directions:
 
-***Body mass index (BMI) as the outcome and total bilirubin as the exposure***, and
-***Total bilirubin as the outcome and BMI as the exposure***.
+***trait1 as the outcome and trait2 as the exposure***, and
+***trait2 as the outcome and trait1 as the exposure***.
 
-These examples are included to demonstrate how the input structure should be defined for both directions of analysis.
+These examples are included to demonstrate how the input structure should be defined for both directions of analysis. The assigned exp[osure variable shoulb be 
 
 ## 3.1. Genotype data 
 Genotype data must be provided in PLINK binary format, consisting of three files: `.bed`, `.bim`, and `.fam`.
