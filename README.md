@@ -14,9 +14,9 @@ library(devtools)
 install_github("Zinabuf/GCIM-GWEIS-Z")
 ~~~
 ### Aditional softwares 
-To run the GCIM-GWEIS-Z pipeline, the following external software must be installed and accessible from your system: 
+To run the full GCIM-GWEIS-Z pipeline, the following external software must be installed and accessible in your system environment: 
    [Plink](https://www.cog-genomics.org/plink/2.0/) and 
-   [LDSC](https://github.com/bulik/LDSC). 
+   [LDSC](https://github.com/bulik/LDSC). Depending on the stage at which the analysis is initiated, these tools may not be required for all steps (e.g., if intermediate results such as GWAS summary statistics or LDSC outputs are already available). 
 ### Additional Resources for LD Score Regression
 **HapMap3 SNP list**:
 `w_hm3.snplist` (used for SNP filtering and harmonization)  and 
