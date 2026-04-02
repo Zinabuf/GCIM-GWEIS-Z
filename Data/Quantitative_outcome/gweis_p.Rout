@@ -1,0 +1,190 @@
+
+R version 4.1.3 (2022-03-10) -- "One Push-Up"
+Copyright (C) 2022 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(GCIM.GWEIS.Z)
+> # Setup paths
+> plink <- "/data/alh-admzw/bscaling/basic_sim/plink2"
+> munge_path <- "/data/alh-admzw/ldsc/munge_sumstats.py"
+> python     <- "/data/alh-admzw/anaconda3/envs/ldsc/bin/python"
+> 
+> #munge_path <- "/home/567/zw6700/ldsc/munge_sumstats.py"
+> ldsc_path <- "/data/alh-admzw/ldsc/ldsc.py"
+> hm3_snps <- "/data/alh-admzw/ldsc_chapter3/real_data/w_hm3.snplist"
+> ld_scores <- "/data/alh-admzw/ldsc_chapter3/real_data/eur_w_ld_chr/"
+> python <- "/data/alh-admzw/anaconda3"
+> # Discovery data
+> dis_geno <- "/data/alh-admzw/ldsc_chapter3/real_data/large_target/revised/true/bil_bmi/package/toydata/mydata.dis"
+> #dis_pheno <- "/scratch/ny48/zw6700/Chpater_3/null.corr/scaled/null_corr_rxe05/g08/g8r8/phend"
+> 
+> # Target data
+> tar_geno <- "/data/alh-admzw/ldsc_chapter3/real_data/large_target/revised/true/bil_bmi/package/toydata/mydata.tar"
+> #tar_pheno <- "/scratch/ny48/zw6700/Chpater_3/null.corr/scaled/null_corr_rxe05/g08/g8r8/phent"
+> #tar_covar <- "/scratch/ny48/zw6700/Chpater_3/null.corr/scaled/null_corr_rxe05/g08/g8r8/covt"
+> 
+> 
+> # Step 4: GWEIS
+> cat("Step 4: Running GWEIS...\n")
+Step 4: Running GWEIS...
+> gweis_res <- q_gweis(
++   plink_path = plink,
++   tar_mydata = "mydata.analysis",
++   tar_pheno_file = "trait1_analysis_out.txt",
++   tar_covar_file = "trait2_analysis_cov.txt",
++   int_covar_index = 1,
++   threads = 40
++ )
+============================================================
+GCIM-GWEIS-Z: Step 4 - Quantitative GWEIS (Target Sample)
+============================================================
+Output directory: /tmp/Rtmp7RGlYB/q_gweis_20260402_140200
+Phenotype file: trait1_analysis_out.txt (pheno_col=3)
+Covariate file: trait2_analysis_cov.txt
+Total covariates detected: 6
+Interaction covariate used: 'trait2' (index 1)
+PLINK --parameters keep: 1,2,3,4,5,6,7,8
+GCIM delimiter: space
+Running PLINK2 GWEIS (linear interaction with all covariates retained)...
+============================================================
+Quantitative GWEIS completed successfully
+GLM file:  /tmp/Rtmp7RGlYB/q_gweis_20260402_140200/q_gweis.trait1.glm.linear
+Interaction term selected: ADDxtrait2
+GCIM file: /tmp/Rtmp7RGlYB/q_gweis_20260402_140200/gcim_prs_int.txt
+============================================================
+> ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
+> glm_df <- read.table(gweis_res$glm_file, header = TRUE, comment.char = "", stringsAsFactors = FALSE)
+> write.table(glm_df, file = "trait1_out_q_gweis.txt", col.names = TRUE, row.names = FALSE, quote = FALSE, sep = "\t")
+> ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
+> 
+> #write.table(gweis_res, "gcimt1.PHENO1.glm.linear", quote = F, row.names = F, sep = " ")
+> # Step 5: Munge for LDSC
+> cat("Step 5: Munging for LDSC...\n")
+Step 5: Munging for LDSC...
+> munge_res <- munge_ldsc_gcim(
++   munge_path  = "/data/alh-admzw/ldsc/munge_sumstats.py",
++   glm_file    = gweis_res,
++   hm3_snplist = hm3_snps,
++   python      = "/data/alh-admzw/anaconda3/envs/ldsc/bin/python"
++ )
+Auto-detected interaction term: ADDxtrait2
+============================================================
+GCIM-GWEIS-Z: Step 5 - Munge Summary Statistics for LDSC
+============================================================
+Output directory: /tmp/Rtmp7RGlYB/ldsc_gcim_20260402_140200
+Interaction term: ADDxtrait2
+GWEIS source: quantitative trait
+SNPs with interaction term: 1000
+Using allele 2 column: REF
+Using Z-score from: T_STAT
+Valid SNPs for munging: 1000
+Running munge_sumstats.py...
+============================================================
+Munging completed successfully!
+  LDSC-ready file: /tmp/Rtmp7RGlYB/ldsc_gcim_20260402_140200/ldsc_ready_sumstats.tsv
+  Munged file: /tmp/Rtmp7RGlYB/ldsc_gcim_20260402_140200/ldsc_gcim.sumstats.gz
+  Munge log: /tmp/Rtmp7RGlYB/ldsc_gcim_20260402_140200/ldsc_gcim_munge.log
+============================================================
+> # Step 6: LDSC heritability
+> cat("Step 6: Computing LDSC intercept...\n")
+Step 6: Computing LDSC intercept...
+> ldsc_res <- ldsc_h2_gcim(
++   ldsc_path = "/data/alh-admzw/ldsc/ldsc.py",
++   python = "/data/alh-admzw/anaconda3/envs/ldsc/bin/python",
++   munged_sumstats = munge_res,
++   ref_ld_chr = ld_scores
++ )
+============================================================
+GCIM-GWEIS-Z: Step 6 - LDSC Heritability Estimation
+============================================================
+Output directory: /tmp/Rtmp7RGlYB/ldsc_h2_20260402_140212
+Munged sumstats source: MUNGE
+Running LDSC: /data/alh-admzw/anaconda3/envs/ldsc/bin/python /data/alh-admzw/ldsc/ldsc.py --h2 /tmp/Rtmp7RGlYB/ldsc_gcim_20260402_140200/ldsc_gcim.sumstats.gz --ref-ld-chr /data/alh-admzw/ldsc_chapter3/real_data/eur_w_ld_chr/ --w-ld-chr /data/alh-admzw/ldsc_chapter3/real_data/eur_w_ld_chr/ --out /tmp/Rtmp7RGlYB/ldsc_h2_20260402_140212/ldsc_gcim
+============================================================
+LDSC completed successfully!
+  Intercept: 2.6952 (SE 0.7985)
+  Log: /tmp/Rtmp7RGlYB/ldsc_h2_20260402_140212/ldsc_gcim.log
+============================================================
+> 
+> # Step 7: Adjust Z-scores
+> cat("Step 7: Adjusting Z-scores...\n")
+Step 7: Adjusting Z-scores...
+> final_res <- gcim_z_adjust(
++   glm_file = gweis_res,
++   intercept_file = ldsc_res
++ )
+Auto-detected interaction term: ADDxtrait2
+============================================================
+GCIM-GWEIS-Z: Step 7 - Z-Score Adjustment
+============================================================
+Output directory: /tmp/Rtmp7RGlYB/gcim_z_adjust_20260402_140217
+Interaction term: ADDxtrait2
+GWEIS source: quantitative trait
+LDSC source: LDSC_H2
+LDSC intercept: 2.695200
+Intercept SE: 0.798500
+Interaction SNPs: 1000
+Z-score source: T_STAT
+============================================================
+Z-score adjustment completed successfully!
+  Correction factor (sqrt(intercept)): 1.641706
+  Valid SNPs: 1000
+
+Significance counts (p < 0.05):
+  Original:  273 / 1000 (27.30%)
+  Adjusted:  79 / 1000 (7.90%)
+
+Bonferroni-corrected for number of SNPs(p < 5.00e-05):
+  Original:  15
+  Adjusted:  0
+
+Genome-wide significance threshold(p < 5e-8):
+  Original_genomewide_bonf:  1
+  Adjusted_genomewide_bonf:  0
+
+  Full results: /tmp/Rtmp7RGlYB/gcim_z_adjust_20260402_140217/gcim_z_adjusted.txt
+  LDSC-ready (adjusted): /tmp/Rtmp7RGlYB/gcim_z_adjust_20260402_140217/ldsc_ready_z_adjusted.tsv
+============================================================
+> ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
+> # fully adjusted outputs 
+> zdf <- read.table(final_res$output_file, header = TRUE, stringsAsFactors = FALSE)
+> file.copy(final_res$output_file, "trait1_out_q_gweis-z.txt", overwrite = TRUE)
+[1] TRUE
+> ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
+> # Report final results
+> cat("\n===== PIPELINE COMPLETE =====\n")
+
+===== PIPELINE COMPLETE =====
+> cat("Total SNPs analyzed:", final_res$n_snps, "\n")
+Total SNPs analyzed: 1000 
+> cat("LDSC intercept:", sprintf("%.4f", final_res$intercept_used), "\n")
+LDSC intercept: 2.6952 
+> cat("Correction factor:", sprintf("%.4f", final_res$correction_factor), "\n")
+Correction factor: 1.6417 
+> cat("Significant SNPs (p<0.05):\n")
+Significant SNPs (p<0.05):
+> cat("  Before adjustment:", final_res$n_sig_original, "\n")
+  Before adjustment: 273 
+> cat("  After adjustment:", final_res$n_sig_adjusted, "\n")
+  After adjustment: 79 
+> cat("\nFinal results saved to:", final_res$output_file, "\n")
+
+Final results saved to: /tmp/Rtmp7RGlYB/gcim_z_adjust_20260402_140217/gcim_z_adjusted.txt 
+> 
+> proc.time()
+   user  system elapsed 
+ 19.138  35.820  17.262 

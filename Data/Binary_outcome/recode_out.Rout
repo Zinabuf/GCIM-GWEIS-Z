@@ -1,0 +1,110 @@
+
+R version 4.1.3 (2022-03-10) -- "One Push-Up"
+Copyright (C) 2022 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> # Read continuous data
+> pheno <- read.table("trait1_analysis_out.txt", header = TRUE)
+> 
+> # Determine the threshold for the 90th percentile
+> threshold_90 <- quantile(pheno$trait1, probs = 0.7)
+> 
+> # Recode data into categorical variable
+> pheno$trait1 <- ifelse(pheno$trait1 >= threshold_90, 2, 1)
+> 
+> # Check the distribution of the new categorical variable
+> table(pheno$trait1)
+
+  1   2 
+560 240 
+> 
+> # If you need to ensure exactly 10% are 1 and 90% are 0:
+> num_1 <- sum(pheno$trait1 == 2)
+> num_0 <- sum(pheno$trait1 == 1)
+> 
+> # Calculate the difference between actual and desired counts
+> difference <- num_1 - 0.3 * (num_1 + num_0)
+> 
+> # If there are more 1s than desired, randomly select some to change to 0
+> if (difference > 0) {
++   indices_1 <- which(pheno$trait1 == 2)
++   indices_to_change <- sample(indices_1, size = difference)
++   pheno$phent[indices_to_change] <- 1
++ }
+> 
+> # If there are fewer 1s than desired, randomly select some to change to 1
+> if (difference < 0) {
++   indices_0 <- which(pheno$trait1 == 1)
++   indices_to_change <- sample(indices_0, size = abs(difference))
++   pheno$phent[indices_to_change] <- 2
++ }
+> 
+> # Check the distribution again to ensure it's approximately 10% 1s and 90% 0s
+> table(pheno$trait1)
+
+  1   2 
+560 240 
+> write.table(pheno, "trait1_analysis_out_b.txt", col.names = TRUE, row.names = F, quote = F)
+> #########################################################################
+> ########################################################################
+> ############## recoding the target dataset #############################
+> # Read continuous data
+> pheno <- read.table("trait1_PRStrained_out.txt", header = TRUE)
+> 
+> # Determine the threshold for the 90th percentile
+> threshold_90 <- quantile(pheno$trait1, probs = 0.7)
+> 
+> # Recode data into categorical variable
+> pheno$trait1 <- ifelse(pheno$trait1 >= threshold_90, 2, 1)
+> 
+> # Check the distribution of the new categorical variable
+> table(pheno$trait1)
+
+  1   2 
+140  60 
+> 
+> # If you need to ensure exactly 10% are 1 and 90% are 0:
+> num_1 <- sum(pheno$trait1 == 2)
+> num_0 <- sum(pheno$trait1 == 1)
+> 
+> # Calculate the difference between actual and desired counts
+> difference <- num_1 - 0.3 * (num_1 + num_0)
+> 
+> # If there are more 1s than desired, randomly select some to change to 0
+> if (difference > 0) {
++   indices_1 <- which(pheno$trait1 == 2)
++   indices_to_change <- sample(indices_1, size = difference)
++   pheno$phent[indices_to_change] <- 1
++ }
+> 
+> # If there are fewer 1s than desired, randomly select some to change to 1
+> if (difference < 0) {
++   indices_0 <- which(pheno$trait1 == 1)
++   indices_to_change <- sample(indices_0, size = abs(difference))
++   pheno$phent[indices_to_change] <- 2
++ }
+> 
+> # Check the distribution again to ensure it's approximately 10% 1s and 90% 0s
+> table(pheno$trait1)
+
+  1   2 
+140  60 
+> write.table(pheno, "trait1_PRStrained_out_b.txt", col.names = TRUE, row.names = F, quote = F)
+> 
+> proc.time()
+   user  system elapsed 
+  0.191   9.602   0.154 
