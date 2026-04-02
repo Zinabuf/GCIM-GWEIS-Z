@@ -76,36 +76,33 @@ If the exposure is binary, use PLINK’s default coding :
 ### Step 2. PRS Construction
 If Step 1 is performed (i.e., GWAS summary statistics are generated and extracted automatically), PRS construction can then be carried out in the analysis sample of genotype data. Alternatively, if external GWAS summary statistics are available, the required SNP-level information, such as SNP identifiers (ID), effect alleles (A1), and effect size estimates, should be extracted and formatted as an input file. Effect sizes should be specified as regression coefficients (β) for quantitative traits and as log odds ratios (logOR) for binary traits, ensuring consistency with the analysis sample used for PRS estimation. 
 ### Step 3. Replacing exposure with PRS
+The exposure variable in the analysis sample (`trait2_analysis_cov.txt`) is replaced with the corresponding PRS for the exposure trait. If externally computed PRS values are available, they can be directly substituted into the analysis sample, ensuring that the PRS is specified in the exposure column (i.e., the third column) used in the model.
 
-## 3.3. Genome-wide environment interaction study (GWEIS)
+### Step 4. Running GWEIS analysis
+GCIM-based analysis requires the exposure variable, which is automatically incorporated if Step 3 is followed. Alternatively, if the exposure variable (or PRS) is prepared externally, two input files must be provided: the outcome file (`trait1_analysis_out.txt`) and the exposure–covariate file (`trait2_analysis_cov.txt`). Both files must be plain text (`.txt`) with column headers and follow a strict column order.
 
-The file should contain two separate `.txt` files for outcome ( `bmi_tar_out.txt`) and exposure with covariate files ('tBil_tar_cov.txt'): This is a .txt file containing the following columns in the specified order. Please note that the file should not have column headings. Therefore, the outcome file `bmi_tar_out.txt` will have the following essential column:
-
-* FID
-
-* IID
-
-* BMI
-
-
-'tBil_tar_cov.txt': This is a .txt file containing the following columns in the specified order. Note that the file should have no column heading. The exposure variable and the covariate that are used to adjust the data frame, as expressed in GxEprs. 
+The outcome file `trait1_analysis_out.txt` should contain:
 
 * FID
-
 * IID
-  
-*  Bilirubin  
+* trait1 (outcome)
 
-* TDI
-* age
-* sex
-  
-  .
-  .
-  .
-  
-* covar_n
-  
+The exposure–covariate file `trait2_analysis_cov.txt` should contain:
+
+* FID
+* IID
+* PRS or trait2 (exposure variable)
+* Covariates used for adjustment (e.g., TDI, age, principal components such as PC1, …, up to covar_n)
+
+In this framework, conventional GWEIS proceeds using the observed exposure variable directly for SNP × exposure interaction testing. In contrast, GCIM-based GWEIS replaces the observed exposure with its corresponding PRS, enabling interaction modelling based on genetically predicted exposure.
+
+### Step 5. Munging for LDSC
+If you follow the previous step to prepare HapMap SNPs and specify the LDSC paths for the munging process, this step can be executed as part of the pipeline. However, if munged summary statistics are already available, this step can be skipped.  
+### Step 6. Computing LDSC intercept
+If you follow the previous step to prepare LD score reference files and specify the LDSC paths for heritability estimation, this step can be executed within the pipeline. However, if the LDSC intercept has already been computed and is available (with the intercept value located in the first row and first column), this step can be skipped and the workflow can proceed directly to the next step.
+ ### Step 7. Adjusting Z-scores
+If you follow the previous step, no additional input is required at this stage. However, if the LDSC intercept has already been computed and is available (with the intercept value located in the first row and first column), it should be imported and applied to the GWEIS results, restricted to the interaction component of GWEIS only.
+
 ***NB*** The reverse direction analysis follows the same input file format and structure as described above. The only difference is the switching of roles between the outcome and exposure variables. Specifically: The variable previously treated as the outcome is now used as the exposure, and the variable previously treated as the exposure is now used as the outcome.
 Example
 Proposed causal: Exposure = Total bilirubin and Outcome = BMI
