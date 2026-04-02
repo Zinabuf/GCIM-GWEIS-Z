@@ -63,16 +63,16 @@ write.table(glm_df, file = "trait1_out_q_gcim_gweis.txt", col.names = TRUE, row.
 # Step 5: Munge for LDSC
 cat("Step 5: Munging for LDSC...\n")
 munge_res <- munge_ldsc_gcim(
-  munge_path  = "/data/alh-admzw/ldsc/munge_sumstats.py",
+  munge_path  = "<path>/ldsc/munge_sumstats.py",
   glm_file    = gweis_res,
   hm3_snplist = hm3_snps,
-  python      = "/data/alh-admzw/anaconda3/envs/ldsc/bin/python"
+  python      = "<path>/anaconda3/envs/ldsc/bin/python"
 )
 # Step 6: LDSC heritability
 cat("Step 6: Computing LDSC intercept...\n")
 ldsc_res <- ldsc_h2_gcim(
-  ldsc_path = "/data/alh-admzw/ldsc/ldsc.py",
-  python = "/data/alh-admzw/anaconda3/envs/ldsc/bin/python",
+  ldsc_path = "<path>/ldsc/ldsc.py",
+  python = "<path>/anaconda3/envs/ldsc/bin/python",
   munged_sumstats = munge_res,
   ref_ld_chr = ld_scores
 )
