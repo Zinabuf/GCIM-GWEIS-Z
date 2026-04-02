@@ -33,30 +33,30 @@ library(GCIM.GWEIS.Z)
  
 The dataset must be divided into two independent, non-overlapping subsets: a PRS training sample and an analysis sample. This split must be applied consistently across all inputs, including genotype data, phenotypes (outcomes), environmental exposures, and covariates.
 
-The PRS training sample is used to estimate SNP effects, while the analysis sample is used to evaluate the GWEIS analysis (causal direction test and correction of inflation due to test statistics).
+The PRS training sample was used to obtain SNP effect size estimates from GWAS summary statistics for polygenic risk score construction, whereas the independent analysis sample was used to perform GWEIS and evaluate genotype-by-environment(GXE) interactions, including inference on causal direction and assessment of test statistic inflation.
 
-Example datasets are provided in the data/ directory. These illustrate two causal directions:
+Example datasets are provided in the `data/` directory. All datasets—including genotype data, phenotypes (outcome and exposure), and covariates are simulated. These examples illustrate the causal directional analysis of G×E interaction effects:
 
-***trait1 as the outcome and trait2 as the exposure***, and
-***trait2 as the outcome and trait1 as the exposure***.
+ **Trait 1 as the outcome and Trait 2 as the exposure**, and
+ **Trait 2 as the outcome and Trait 1 as the exposure**.
 
-These examples are included to demonstrate how the input structure should be defined for both directions of analysis. The assigned exp[osure variable shoulb be 
-
+They are intended to demonstrate how to correctly specify the input structure for each causal direction. In each case, the exposure variable should be defined within a dedicated data frame, along with any covariates included for adjustment in the model.
+ 
 ## 3.1. Genotype data 
 Genotype data must be provided in PLINK binary format, consisting of three files: `.bed`, `.bim`, and `.fam`.
 
-Separate genotype datasets are required for the discovery and target samples. These datasets must contain non-overlapping individuals and be consistently aligned with the corresponding phenotype and covariate files.
+Separate genotype datasets are required for the PRS training and analysis samples. These datasets must contain non-overlapping individuals and be consistently aligned with the corresponding phenotype and covariate files.
 
 Example files are provided in the data/ directory:
 
-***Discovery dataset***
-`mydata_dis.bed`
-`mydata_dis.bim`
-`mydata_dis.fam`
-***Target dataset***
-`mydata_tar.bed`
-`mydata_tar.bim`
-`mydata_tar.fam`
+***PRS training sample***
+`mydata.PRStrained.bed`
+`mydata.PRStrained.bim`
+`mydata.PRStrained.fan`
+***Analysis sample***
+`mydata.analysis.bed`
+`mydata.analysis.bim`
+`mydata.analysis.fam`
 ## 3.2. Input File Format (Discovery Dataset for GWAS/PRS Construction)
 The discovery dataset is used to perform GWAS and construct polygenic risk scores (PRS) for the exposure variable under the proposed causal directions. 
 Exposure + Covariates File
