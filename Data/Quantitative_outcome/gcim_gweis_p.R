@@ -19,7 +19,7 @@ python <- "<path>/anaconda3"
 #trait2_analysis_cov.txt <- "<path>"
 
 # Step 1: Discovery GWAS
-cat("Step 1: Running discovery GWAS...\n")
+cat("Step 1: Running PRS training sample of GWAS...\n")
 gwas_res <- q_gwas(
   plink_path = plink,
   dis_mydata = "mydata.PRStrained",
