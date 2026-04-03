@@ -35,7 +35,7 @@ library(GCIM.GWEIS.Z)
 
 <div align="justify">The PRS training sample was used to obtain SNP effect size estimates from GWAS summary statistics for PRS construction. In contrast, the independent analysis sample was used to perform GWEIS and evaluate genotype-by-environment (GXE) interactions, including inference on causal direction and assessment of test-statistic inflation.</div>
 
-<div align="justify">Example datasets are provided in the `data/` directory. All datasets, including genotype data, phenotypes (outcome and exposure), and covariates, are simulated. These examples illustrate the causal directional analysis of G×E interaction effects:</div>
+<div align="justify">Example datasets are provided in the ***data/*** directory. All datasets, including genotype data, phenotypes (outcome and exposure), and covariates, are simulated. These examples illustrate the causal directional analysis of G×E interaction effects:</div>
 
  **Trait 1 as the outcome and Trait 2 as the exposure**, and
  
@@ -44,7 +44,7 @@ library(GCIM.GWEIS.Z)
 <div align="justify">They are intended to demonstrate how to correctly specify the input structure for each causal direction. In each case, the exposure variable should be defined within a dedicated data frame, along with any covariates included for adjustment in the model.</div>
  
 ## 3.1. Genotype data 
-<div align="justify">Genotype data must be provided in PLINK binary format, consisting of three files: `.bed`, `.bim`, and `.fam`.</div>
+Genotype data must be provided in PLINK binary format, consisting of three files: `.bed`, `.bim`, and `.fam`.
 
 <div align="justify">Separate genotype datasets are required for the PRS training and analysis samples. These datasets must contain non-overlapping individuals and be consistently aligned with the corresponding phenotype and covariate files.</div>
 
@@ -61,7 +61,7 @@ Example files are provided in the data/ directory:
 `mydata.analysis.fam`
 
 ## 3.2. Steps for the analysis pipeline
-If the required intermediate results from prior analyses are already available, the pipeline can be initiated at any appropriate step. For example, to evaluate inflation in existing GWEIS results, the workflow can begin at Step 5, Step 6, or Step 7, depending on the specific inputs available from previous analyses, even if they were generated under different analytical settings.
+<div align="justify">If the required intermediate results from prior analyses are already available, the pipeline can be initiated at any appropriate step. For example, to evaluate inflation in existing GWEIS results, the workflow can begin at Step 5, Step 6, or Step 7, depending on the specific inputs available from previous analyses, even if they were generated under different analytical settings.</div>
 ### Step 1. GWAS for PRS Construction
 The PRS training sample is used to perform GWAS and derive PRS for the exposure trait under the hypothesised causal direction. Example datasets for a quantitative outcome are provided in the `quantitative_outcome/` data directory, together with the script `gcim_gweis_P.R`.
 Exposure + Covariates File: The input file must include the following columns: `trait2_PRStrained_cov.txt`
@@ -76,12 +76,12 @@ If the exposure is binary, use PLINK’s default coding :
 `2` = Case
 
 ### Step 2. PRS Construction
-If Step 1 is performed (i.e., GWAS summary statistics are generated and extracted automatically), PRS construction can then be carried out in the analysis sample of genotype data. Alternatively, if external GWAS summary statistics are available, the required SNP-level information, such as SNP identifiers (ID), effect alleles (A1), and effect size estimates, should be extracted and formatted as an input file. Effect sizes should be specified as regression coefficients (β) for quantitative traits and as log odds ratios (logOR) for binary traits, ensuring consistency with the analysis sample used for PRS estimation. 
+<div align="justify">If Step 1 is performed (i.e., GWAS summary statistics are generated and extracted automatically), PRS construction can then be carried out in the analysis sample of genotype data. Alternatively, if external GWAS summary statistics are available, the required SNP-level information, such as SNP identifiers (ID), effect alleles (A1), and effect size estimates, should be extracted and formatted as an input file. Effect sizes should be specified as regression coefficients (β) for quantitative traits and as log odds ratios (logOR) for binary traits, ensuring consistency with the analysis sample used for PRS estimation.</div> 
 ### Step 3. Replacing exposure with PRS
-The exposure variable in the analysis sample (`trait2_analysis_cov.txt`) is replaced with the corresponding PRS for the exposure trait. If externally computed PRS values are available, they can be directly substituted into the analysis sample, ensuring that the PRS is specified in the exposure column (i.e., the third column) used in the model.
+<div align="justify">The exposure variable in the analysis sample (`trait2_analysis_cov.txt`) is replaced with the corresponding PRS for the exposure trait. If externally computed PRS values are available, they can be directly substituted into the analysis sample, ensuring that the PRS is specified in the exposure column (i.e., the third column) used in the model.</div>
 
 ### Step 4. Running GWEIS analysis
-GCIM-based analysis requires the exposure variable, which is automatically incorporated if Step 3 is followed. Alternatively, if the exposure variable (or PRS) is prepared externally, two input files must be provided: the outcome file (`trait1_analysis_out.txt`) and the exposure–covariate file (`trait2_analysis_cov.txt`). Both files must be plain text (`.txt`) with column headers and follow a strict column order.
+<div align="justify">GCIM-based analysis requires the exposure variable, which is automatically incorporated if Step 3 is followed. Alternatively, if the exposure variable (or PRS) is prepared externally, two input files must be provided: the outcome file (`trait1_analysis_out.txt`) and the exposure–covariate file (`trait2_analysis_cov.txt`). Both files must be plain text (`.txt`) with column headers and follow a strict column order.</div>
 
 The outcome file `trait1_analysis_out.txt` should contain:
 
@@ -96,16 +96,16 @@ The exposure–covariate file `trait2_analysis_cov.txt` should contain:
 * PRS or trait2 (exposure variable)
 * `TDI, Age, pc1, ..., Covar_n`
 
-In this framework, conventional GWEIS proceeds using the observed exposure variable directly for SNP × exposure interaction testing. In contrast, GCIM-based GWEIS replaces the observed exposure with its corresponding PRS, enabling interaction modelling based on genetically predicted exposure.
+<div align="justify">In this framework, conventional GWEIS proceeds using the observed exposure variable directly for SNP × exposure interaction testing. In contrast, GCIM-based GWEIS replaces the observed exposure with its corresponding PRS, enabling interaction modelling based on genetically predicted exposure.</div>
 
 ### Step 5. Munging for LDSC
-If you follow the previous step to prepare HapMap SNPs and specify the LDSC paths for the munging process, this step can be executed as part of the pipeline. However, if munged summary statistics are already available, this step can be skipped.  
+<div align="justify">If you follow the previous step to prepare HapMap SNPs and specify the LDSC paths for the munging process, this step can be executed as part of the pipeline. However, if munged summary statistics are already available, this step can be skipped.</div>  
 ### Step 6. Computing LDSC intercept
-If you follow the previous step to prepare LD score reference files and specify the LDSC paths for heritability estimation, this step can be executed within the pipeline. However, if the LDSC intercept has already been computed and is available (with the intercept value located in the first row and first column), this step can be skipped and the workflow can proceed directly to the next step.
+<div align="justify">If you follow the previous step to prepare LD score reference files and specify the LDSC paths for heritability estimation, this step can be executed within the pipeline. However, if the LDSC intercept has already been computed and is available (with the intercept value located in the first row and first column), this step can be skipped and the workflow can proceed directly to the next step.</div>
  ### Step 7. Adjusting Z-scores
-If you follow the previous step, no additional input is required at this stage. However, if the LDSC intercept has already been computed and is available (with the intercept value located in the first row and first column), it should be imported and applied to the GWEIS results, restricted to the interaction component of GWEIS only.
+<div align="justify">If you follow the previous step, no additional input is required at this stage. However, if the LDSC intercept has already been computed and is available (with the intercept value located in the first row and first column), it should be imported and applied to the GWEIS results, restricted to the interaction component of GWEIS only.</div>
 
-***NB*** The reverse direction analysis follows the same input file format and structure as described above. The only difference is the switching of roles between the outcome and exposure variables. Specifically: The variable previously treated as the outcome is now used as the exposure, and the variable previously treated as the exposure is now used as the outcome.
+_<div align="justify">***NB*** The reverse direction analysis follows the same input file format and structure as described above. The only difference is the switching of roles between the outcome and exposure variables. Specifically: The variable previously treated as the outcome is now used as the exposure, and the variable previously treated as the exposure is now used as the outcome.</div>_
 Example
 Proposed causal: Exposure = Total bilirubin and Outcome = BMI
 Reverse direction: Exposure = BMI and Outcome = Total bilirubin
