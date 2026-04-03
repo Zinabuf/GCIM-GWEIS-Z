@@ -16,7 +16,7 @@ install_github("Zinabuf/GCIM-GWEIS-Z")
 ### Aditional softwares 
 <div align="justify">To run the full GCIM-GWEIS-Z pipeline, the following external software must be installed and accessible in your system environment: 
    [Plink](https://www.cog-genomics.org/plink/2.0/) and 
-   [LDSC](https://github.com/bulik/LDSC). Depending on the stage at which the analysis is initiated, these tools may not be required for all steps (e.g., if intermediate results such as GWAS summary statistics or LDSC outputs are already available).</div>_
+   [LDSC](https://github.com/bulik/LDSC). Depending on the stage at which the analysis is initiated, these tools may not be required for all steps (e.g., if intermediate results such as GWAS summary statistics or LDSC outputs are already available).</div>
 ### Additional Resources for LD Score Regression
 **HapMap3 SNP list**:
 `w_hm3.snplist` (used for SNP filtering and harmonization)  and 
@@ -31,7 +31,7 @@ library(GCIM.GWEIS.Z)
 
 # 3. Data Preparation 
  
-The dataset must be divided into two independent, non-overlapping subsets: a polygenic risk score (PRS) training sample and an analysis sample. This split must be applied consistently across all inputs, including genotype data, phenotypes (outcomes), environmental exposures, and covariates.
+<div align="justify">The dataset must be divided into two independent, non-overlapping subsets: a polygenic risk score (PRS) training sample and an analysis sample. This split must be applied consistently across all inputs, including genotype data, phenotypes (outcomes), environmental exposures, and covariates.</div>
 
 The PRS training sample was used to obtain SNP effect size estimates from GWAS summary statistics for PRS construction. In contrast, the independent analysis sample was used to perform GWEIS and evaluate genotype-by-environment (GXE) interactions, including inference on causal direction and assessment of test-statistic inflation.
 
