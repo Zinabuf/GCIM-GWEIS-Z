@@ -33,20 +33,20 @@ library(GCIM.GWEIS.Z)
  
 <div align="justify">The dataset must be divided into two independent, non-overlapping subsets: a polygenic risk score (PRS) training sample and an analysis sample. This split must be applied consistently across all inputs, including genotype data, phenotypes (outcomes), environmental exposures, and covariates.</div>
 
-The PRS training sample was used to obtain SNP effect size estimates from GWAS summary statistics for PRS construction. In contrast, the independent analysis sample was used to perform GWEIS and evaluate genotype-by-environment (GXE) interactions, including inference on causal direction and assessment of test-statistic inflation.
+<div align="justify">The PRS training sample was used to obtain SNP effect size estimates from GWAS summary statistics for PRS construction. In contrast, the independent analysis sample was used to perform GWEIS and evaluate genotype-by-environment (GXE) interactions, including inference on causal direction and assessment of test-statistic inflation.</div>
 
-Example datasets are provided in the `data/` directory. All datasets, including genotype data, phenotypes (outcome and exposure), and covariates, are simulated. These examples illustrate the causal directional analysis of G×E interaction effects:
+<div align="justify">Example datasets are provided in the `data/` directory. All datasets, including genotype data, phenotypes (outcome and exposure), and covariates, are simulated. These examples illustrate the causal directional analysis of G×E interaction effects:</div>
 
  **Trait 1 as the outcome and Trait 2 as the exposure**, and
  
  **Trait 2 as the outcome and Trait 1 as the exposure**.
 
-They are intended to demonstrate how to correctly specify the input structure for each causal direction. In each case, the exposure variable should be defined within a dedicated data frame, along with any covariates included for adjustment in the model.
+<div align="justify">They are intended to demonstrate how to correctly specify the input structure for each causal direction. In each case, the exposure variable should be defined within a dedicated data frame, along with any covariates included for adjustment in the model.</div>
  
 ## 3.1. Genotype data 
-Genotype data must be provided in PLINK binary format, consisting of three files: `.bed`, `.bim`, and `.fam`.
+<div align="justify">Genotype data must be provided in PLINK binary format, consisting of three files: `.bed`, `.bim`, and `.fam`.</div>
 
-Separate genotype datasets are required for the PRS training and analysis samples. These datasets must contain non-overlapping individuals and be consistently aligned with the corresponding phenotype and covariate files.
+<div align="justify">Separate genotype datasets are required for the PRS training and analysis samples. These datasets must contain non-overlapping individuals and be consistently aligned with the corresponding phenotype and covariate files.</div>
 
 Example files are provided in the data/ directory:
 
