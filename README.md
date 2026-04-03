@@ -187,7 +187,7 @@ X.CHROM POS     ID      REF     ALT     PROVISIONAL_REF.        A1      OMITTED 
 1       2000    rs23    A       G       Y       G       A       0.34    ADDxPRS 800     -0.00462024     0.0685233       -0.0674257      0.94626 .
 ~~~
 
-Here are the first few lines of a typical **GCIM-GWEIS-Z** output file for quantitative outcome `trait1_out_q_gcim_gweis.txt`
+Here are the first few lines of a typical **GCIM-GWEIS-Z** output file for quantitative outcome `trait1_out_q_gcim_gweis-z.txt`
 
 ~~~
 #CHROM  POS     ID      REF     ALT     PROVISIONAL_REF?        A1      OMITTED A1_FREQ TEST    OBS_CT  BETA    SE      T_STAT  P       ERRCODE z_adj_int       p_value_int_adj
