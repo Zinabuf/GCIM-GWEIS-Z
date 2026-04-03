@@ -2,7 +2,7 @@
 # <h1 align="center">GCIM-GWEIS-Z</h1>
 ---
 
-The Genetic Causality Inference Model (GCIM) for genome-wide-by-environment interaction studies (GWEIS), incorporating adjusted z-scores (Z), is a statistical framework designed to infer the causal direction of SNP-by-environment interactions and to correct inflation in GxE effects arising from heteroscedasticity.
+_<div align="justify">The Genetic Causality Inference Model (GCIM) for genome-wide-by-environment interaction studies (GWEIS), incorporating adjusted z-scores (Z), is a statistical framework designed to infer the causal direction of SNP-by-environment interactions and to correct inflation in GxE effects arising from heteroscedasticity.</div>_
 ## Authors: Zinabu Fentaw and S.Hong Lee
 
    
