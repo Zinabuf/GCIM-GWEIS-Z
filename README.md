@@ -227,8 +227,8 @@ Bonferroni-corrected for number of SNPs(p < 5.00e-05):
   Adjusted:  1
 
 Genome-wide significance threshold(p < 5e-8):
-  Original_genomewide_bonf:  0
-  Adjusted_genomewide_bonf:  0
+  Original_genomewide_threshold:  0
+  Adjusted_genomewide_threshold:  0
 ~~~
 
 
@@ -343,7 +343,7 @@ Z-score adjustment completed successfully!
   Valid SNPs: 1000
 
 Significance counts (p < 0.05):
-  Original:  0 / 1000 (0.00%)
+  Original:  54 / 1000 (5.40%)
   Adjusted:  88 / 1000 (8.80%)
 
 Bonferroni-corrected for number of SNPs(p < 5.00e-05):
