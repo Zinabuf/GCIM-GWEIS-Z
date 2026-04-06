@@ -61,7 +61,7 @@ Example files are provided in the data/ directory:
 `mydata.analysis.fam`
 
 ## 3.2. Steps for the analysis pipeline
-<div align="justify">If the required intermediate results from prior analyses are already available, the pipeline can be initiated at any appropriate step. For example, to evaluate inflation in existing GWEIS results, the workflow can begin at Step 5, Step 6, or Step 7, depending on the specific inputs available from previous analyses, even if they were generated under different analytical settings.</div>
+<div align="justify">If the required intermediate results from prior analyses are already available, the pipeline can be initiated at any appropriate step. For example, to evaluate inflation in existing GWEIS results, the workflow can begin at Step 5, Step 6, or Step 7, depending on the specific inputs available from previous analyses.</div>
 
 ### Step 1. GWAS for PRS Construction
 
