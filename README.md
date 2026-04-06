@@ -118,8 +118,8 @@ The exposure–covariate file `trait2_analysis_cov.txt` should contain:
 
 _<div align="justify">***NB*** The reverse direction analysis follows the same input file format and structure as described above. The only difference is the switching of roles between the outcome and exposure variables. Specifically: The variable previously treated as the outcome is now used as the exposure, and the variable previously treated as the exposure is now used as the outcome.</div>_
 Example
-Proposed causal: Exposure = Total bilirubin and Outcome = BMI
-Reverse direction: Exposure = BMI and Outcome = Total bilirubin
+Proposed causal: Exposure = tarit2 and Outcome = trait1
+Reverse direction: Exposure = trait1 and Outcome = trait2
 
 All other components (genotype data, covariates, file structure, and coding conventions) remain unchanged.
 
