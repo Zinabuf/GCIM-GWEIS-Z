@@ -33,7 +33,7 @@ library(GCIM.GWEIS.Z)
  
 <div align="justify">The dataset must be divided into two independent, non-overlapping subsets: a polygenic risk score (PRS) training sample and an analysis sample. This split must be applied consistently across all inputs, including genotype data, phenotypes (outcomes), environmental exposures, and covariates.</div>
 
-<div align="justify">The PRS training sample was used to obtain SNP effect size estimates from GWAS summary statistics for PRS construction. In contrast, the independent analysis sample was used to perform GWEIS and evaluate genotype-by-environment (GXE) interactions, including inference on causal direction and assessment of test-statistic inflation.</div>
+<div align="justify">The PRS training sample was used to obtain SNP effect size estimates from GWAS summary statistics for PRS construction. In contrast, the independent analysis sample was used to perform GWEIS and evaluate genotype-by-environment (GxE) interactions, including inference on causal direction and assessment of test-statistic inflation.</div>
 
 <div align="justify">Example datasets are provided in the ***data/*** directory. All datasets, including genotype data, phenotypes (outcome and exposure), and covariates, are simulated. These examples illustrate the causal directional analysis of G×E interaction effects:</div>
 
