@@ -140,7 +140,7 @@ ld_scores <- "<ld_ref_path>/eur_w_ld_chr/"
 
 # Step 1: Discovery GWAS
 cat("Step 1: Running discovery GWAS...\n")
-gwas_res <- q_gwas(plink_path = plink, "`mydata.dis`", dis_cov_file = "tBil_dis_cov.txt", threads = 40)
+gwas_res <- q_gwas(plink_path = plink, **"mydata.dis"**, dis_cov_file = "tBil_dis_cov.txt", threads = 40)
 # Step 2: Compute PRS
 cat("Step 2: Computing PRS in target...\n")
 prs_res <- prs_scores(plink_path = plink, "mydata.tar", score_file = gwas_res, threads = 40)
