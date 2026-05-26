@@ -128,54 +128,84 @@ All other components (genotype data, covariates, file structure, and coding conv
 ## 4.1. Quantitative Outcomes with Quantitative Exposures 
 
 ~~~
-#load library
 library(GCIM.GWEIS.Z)
-# Set plink path
-plink_path <- "<plink_path>/plink2"
-# Set munge_sumstats.py path
-menge_path <- "<menge_path>/munge_sumstats.py"
-# Set ldsc.py path
-ldsc_path <- "<ldsc_path>/ldsc.py"
-hm3_snps <- "<snplst_path>/w_hm3.snplist"
-ld_scores <- "<ld_ref_path>/eur_w_ld_chr/"
+# Setup paths
+plink <- "<plink_path>/plink2"
+hm3_snps <- "<path>/ldsc_chapter3/real_data/w_hm3.snplist"
+ld_scores <- "<path>//eur_w_ld_chr/"
 
-# Step 1: Discovery GWAS
+# Step 1: PRS training sample for GWAS
 cat("Step 1: Running discovery GWAS...\n")
-gwas_res <- q_gwas(plink_path = plink, "mydata.dis", dis_cov_file = "tBil_dis_cov.txt", threads = 40)
+gwas_res <- q_gwas(
+  plink_path = plink,
+  dis_mydata = "mydata.PRStrained",
+  dis_cov_file = "trait2_PRStrained_cov.txt",
+  threads = 40
+)
+
 # Step 2: Compute PRS
 cat("Step 2: Computing PRS in target...\n")
-prs_res <- prs_scores(plink_path = plink, "mydata.tar", score_file = gwas_res, threads = 40)
+prs_res <- prs_scores(
+  plink_path = plink,
+  tar_mydata = "mydata.analysis",
+  score_file = gwas_res,
+  threads = 40
+)
 
 # Step 3: Replace exposure with PRS
 cat("Step 3: Replacing exposure with PRS...\n")
-replaced_res <- replace_covariate_with_prs("tBil_tar_cov.txt", prs_file = prs_res, on_missing = "stop")
-# Step 4: GWEIS (This is a step 1 for conventional GWEIS)
-cat("Step 4: Running GWEIS...\n")
-gweis_res <- q_gweis(plink_path = plink, "mydata.tar", "bmi_tar_out.txt", tar_covar_file = replaced_res, int_covar_index = 1, threads = 40)
-###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
-      ###save the GCIM-GWEIS
-#glm_df <- read.table(gweis_res$glm_file, header = TRUE, comment.char = "", stringsAsFactors = FALSE)
+replaced_res <- replace_covariate_with_prs(
+  dis_cov_file = "trait2_analysis_cov.txt",
+  prs_file = prs_res,
+  on_missing = "stop"
+)
 
-#write.table(glm_df, file = "tBil_bmi_gcim-gweis.txt", col.names = TRUE, row.names = FALSE, quote = FALSE, sep = "\t")
+# Step 4: GWEIS
+cat("Step 4: Running GWEIS...\n")
+gweis_res <- q_gweis(
+  plink_path = plink,
+  tar_mydata = "mydata.analysis",
+  tar_pheno_file = "trait1_analysis_out.txt",
+  tar_covar_file = replaced_res,
+  int_covar_index = 1,
+  threads = 40
+)
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
+glm_df <- read.table(gweis_res$glm_file, header = TRUE, comment.char = "", stringsAsFactors = FALSE)
+write.table(glm_df, file = "trait1_out_q_gcim_gweis.txt", col.names = TRUE, row.names = FALSE, quote = FALSE, sep = "\t")
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
 
+#write.table(gweis_res, "gcimt1.PHENO1.glm.linear", quote = F, row.names = F, sep = " ")
 # Step 5: Munge for LDSC
 cat("Step 5: Munging for LDSC...\n")
-munge_res <- munge_ldsc_gcim(munge_path  = "/<path>/ldsc/munge_sumstats.py", glm_file    = gweis_res, hm3_snplist = hm3_snps,
-  python      = "/<path>/anaconda3/envs/ldsc/bin/python")
+munge_res <- munge_ldsc_gcim(
+  munge_path  = "<path>/ldsc/munge_sumstats.py",
+  glm_file    = gweis_res,
+  hm3_snplist = hm3_snps,
+  python      = "<path>/anaconda3/envs/ldsc/bin/python"
+)
 # Step 6: LDSC heritability
 cat("Step 6: Computing LDSC intercept...\n")
-ldsc_res <- ldsc_h2_gcim(ldsc_path = "/<path>/ldsc/ldsc.py", python = "/<path>/anaconda3/envs/ldsc/bin/python", munged_sumstats = munge_res,
-  ref_ld_chr = ld_scores)
+ldsc_res <- ldsc_h2_gcim(
+  ldsc_path = "<path>/ldsc/ldsc.py",
+  python = "<path>/anaconda3/envs/ldsc/bin/python",
+  munged_sumstats = munge_res,
+  ref_ld_chr = ld_scores
+)
+
 # Step 7: Adjust Z-scores
 cat("Step 7: Adjusting Z-scores...\n")
-final_res <- gcim_z_adjust(glm_file = gweis_res, intercept_file = ldsc_res)
+final_res <- gcim_z_adjust(
+  glm_file = gweis_res,
+  intercept_file = ldsc_res
+)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
-# fully adjusted GCIM_GWEIS-Z outputs 
+# fully adjusted outputs 
 zdf <- read.table(final_res$output_file, header = TRUE, stringsAsFactors = FALSE)
-file.copy(final_res$output_file, "tBil_bmi_gcim-gweis-z.txt", overwrite = TRUE)
+file.copy(final_res$output_file, "trait1_out_q_gcim_gweis-z.txt", overwrite = TRUE)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
- ~~~
+~~~
+
 ## Result 
 Here are the first few lines of a typical **GCIM-GWEIS** output file for quantitative outcome `trait1_out_q_gcim_gweis.txt`
 
@@ -247,57 +277,89 @@ Genome-wide significance threshold(p < 5e-8):
 ## 4.2. Binary Outcomes with Quantitative Exposures 
 
 ~~~
-#load library
 library(GCIM.GWEIS.Z)
-# Set plink path
-plink_path <- "<plink_path>/plink2"
-# Set munge_sumstats.py path
-menge_path <- "<menge_path>/munge_sumstats.py"
-# Set ldsc.py path
-ldsc_path <- "<ldsc_path>/ldsc.py"
-hm3_snps <- "<snplst_path>/w_hm3.snplist"
-ld_scores <- "<ld_ref_path>/eur_w_ld_chr/"
+# Setup paths
+plink <- "<path>/plink2"
+#python     <- "<path>/anaconda3/envs/ldsc/bin/python"
+#munge_path <- "<path>/ldsc/munge_sumstats.py"
+#ldsc_path <- "<path>/ldsc/ldsc.py"
+hm3_snps <- "<path>/w_hm3.snplist"
+ld_scores <- "<path>/eur_w_ld_chr/"
+#python <- "<path>/anaconda3"
 
-# 1) GWAS -> score file
 # Step 1: Discovery GWAS
 cat("Step 1: Running discovery GWAS...\n")
-gwas_res <- q_gwas(plink_path = plink, "mydata.dis", "tBil_dis_cov.txt", threads = 40)
+gwas_res <- q_gwas(
+  plink_path = plink,
+  dis_mydata = "mydata.PRStrained",
+  dis_cov_file = "trait2_PRStrained_cov.txt",
+  threads = 40
+)
 
 # Step 2: Compute PRS
 cat("Step 2: Computing PRS in target...\n")
-prs_res <- prs_scores(plink_path = plink, "mydata.tar", score_file = gwas_res, threads = 40)
+prs_res <- prs_scores(
+  plink_path = plink,
+  tar_mydata = "mydata.analysis",
+  score_file = gwas_res,
+  threads = 40
+)
+
 # Step 3: Replace exposure with PRS
 cat("Step 3: Replacing exposure with PRS...\n")
-replaced_res <- replace_covariate_with_prs("tBil_tar_cov.txt", prs_file = prs_res, on_missing = "stop")
+replaced_res <- replace_covariate_with_prs(
+  dis_cov_file = "trait2_analysis_cov.txt",
+  prs_file = prs_res,
+  on_missing = "stop"
+)
 
 # Step 4: GWEIS
 cat("Step 4: Running GWEIS...\n")
-gweis_res <- b_gweis(plink_path = plink, "mydata.tar", "bmi_tar_out_b.txt", tar_covar_file = replaced_res, int_covar_index = 1, threads = 40)
-
+gweis_res <- b_gweis(
+  plink_path = plink,
+  tar_mydata = "mydata.analysis",
+  tar_pheno_file = "trait1_analysis_out_b.txt",
+  tar_covar_file = replaced_res,
+  int_covar_index = 1,
+  threads = 40
+)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
 glm_df <- read.table(gweis_res$glm_file, header = TRUE, comment.char = "", stringsAsFactors = FALSE)
-
-write.table(glm_df, file = "tBil_bmi_gcim-gweis.txt", col.names = TRUE, row.names = FALSE, quote = FALSE, sep = "\t")
+write.table(glm_df, file = "trait1_out_b_gcim_gweis.txt", col.names = TRUE, row.names = FALSE, quote = FALSE, sep = "\t")
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
+
+#write.table(gweis_res, "gcimt1.PHENO1.glm.linear", quote = F, row.names = F, sep = " ")
 # Step 5: Munge for LDSC
 cat("Step 5: Munging for LDSC...\n")
-munge_res <- munge_ldsc_gcim(munge_path  = "/<path>/ldsc/munge_sumstats.py", glm_file    = gweis_res, hm3_snplist = hm3_snps,
-  python      = "/<path>/anaconda3/envs/ldsc/bin/python")
+munge_res <- munge_ldsc_gcim(
+  munge_path  = "<path>/ldsc/munge_sumstats.py",
+  glm_file    = gweis_res,
+  hm3_snplist = hm3_snps,
+  python      = "<path>/anaconda3/envs/ldsc/bin/python"
+)
 # Step 6: LDSC heritability
 cat("Step 6: Computing LDSC intercept...\n")
-ldsc_res <- ldsc_h2_gcim(ldsc_path = "/<path>/ldsc/ldsc.py", python = "/<path>/anaconda3/envs/ldsc/bin/python",
-  munged_sumstats = munge_res, ref_ld_chr = ld_scores)
+ldsc_res <- ldsc_h2_gcim(
+  ldsc_path = "<path>/ldsc/ldsc.py",
+  python = "<path>/anaconda3/envs/ldsc/bin/python",
+  munged_sumstats = munge_res,
+  ref_ld_chr = ld_scores
+)
 
 # Step 7: Adjust Z-scores
 cat("Step 7: Adjusting Z-scores...\n")
-final_res <- gcim_z_adjust(glm_file = gweis_res, intercept_file = ldsc_res)
-#save the adjusted values 
+final_res <- gcim_z_adjust(
+  glm_file = gweis_res,
+  intercept_file = ldsc_res
+)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
 # fully adjusted outputs 
 zdf <- read.table(final_res$output_file, header = TRUE, stringsAsFactors = FALSE)
-file.copy(final_res$output_file, "tBil_bmi_gcim-gweis-z.txt", overwrite = TRUE)
+file.copy(final_res$output_file, "trait1_out_b_gcim_gweis-z.txt", overwrite = TRUE)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
- ~~~
+~~~
+
+
 ## Result
 
 Here are the first few lines of a typical **GCIM-GWEIS** output file `trait1_out_b_gcim_gweis.txt`
