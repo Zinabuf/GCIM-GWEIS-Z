@@ -17,11 +17,12 @@ install_github("Zinabuf/GCIM-GWEIS-Z")
 To run the full GCIM-GWEIS-Z pipeline, the following external software must be installed and accessible in your system environment: 
    [Plink](https://www.cog-genomics.org/plink/2.0/) and 
    [LDSC](https://github.com/bulik/LDSC). Depending on the stage at which the analysis is initiated, these tools may not be required for all steps (e.g., if intermediate results such as GWAS summary statistics or LDSC outputs are already available).
-### Additional Resources for LD Score Regression
-**HapMap3 SNP list**:
-`w_hm3.snplist` (used for SNP filtering and harmonization)  and 
-**European LD scores**:
-`eur_w_ld_chr/` (used as the LD reference panel)
+### Preparing LDSC reference files
+GCIM-GWEIS-Z uses LDSC to estimate the genome-wide inflation/intercept of the GWEIS or GCIM-GWEIS test statistics. Two LDSC reference inputs are required:
+#### 1.**HapMap3 SNP list**: `w_hm3.snplist`
+This file contains the list of well-imputed HapMap3 SNPs commonly used for LDSC munging and regression. It is used by `munge_sumstats.py` to restrict the summary statistics to high-quality SNPs. 
+#### 2. European LD-score reference directory `eur_w_ld_chr/`
+This directory contains pre-computed LD scores for individuals of European ancestry, split by chromosome. It is used by `ldsc.py` to estimate the LDSC intercept.
 
 # 2. Load the library
 
