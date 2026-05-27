@@ -2,7 +2,7 @@
 # <h1 align="center">GCIM-GWEIS-Z</h1>
 ---
 
-_<div align="justify">The Genetic Causality Inference Model (GCIM) for genome-wide-by-environment interaction studies (GWEIS), incorporating adjusted z-scores (Z), is a statistical framework designed to infer the causal direction of SNP-by-environment interactions and to correct inflation in GxE effects arising from heteroscedasticity.</div>_
+_<div align="justify">The Genetic Causality Inference Model (GCIM) for genome-wide-by-environment interactions study (GWEIS), incorporating adjusted z-scores (Z), is a statistical framework designed to infer the causal direction of SNP-by-environment interactions and to correct inflation in GxE interactions arising from heteroscedasticity.</div>_
 ## Authors: Zinabu Fentaw and S.Hong Lee
 
    
@@ -18,7 +18,7 @@ To run the full GCIM-GWEIS-Z pipeline, the following external software must be i
    [Plink](https://www.cog-genomics.org/plink/2.0/) and 
    [LDSC](https://github.com/bulik/LDSC). Depending on the stage at which the analysis is initiated, these tools may not be required for all steps (e.g., if intermediate results such as GWAS summary statistics or LDSC outputs are already available).
 ### Preparing LDSC reference files
-GCIM-GWEIS-Z uses LDSC to estimate the genome-wide inflation/intercept of the GWEIS or GCIM-GWEIS test statistics. Two LDSC reference inputs are required:
+GCIM-GWEIS-Z uses LDSC to estimate the intercept of conventional GWEIS or GCIM-GWEIS test statistics. Two LDSC reference inputs are required:
 #### 1.**HapMap3 SNP list**: (`w_hm3.snplist`)
 This file contains the list of well-imputed HapMap3 SNPs commonly used for LDSC munging and regression. It is used by `munge_sumstats.py` to restrict the summary statistics to high-quality SNPs. 
 #### 2. European LD-score reference directory: (`eur_w_ld_chr/`)
@@ -36,11 +36,11 @@ library(GCIM.GWEIS.Z)
 
 <div align="justify">The PRS training sample was used to obtain SNP effect size estimates from GWAS summary statistics for PRS construction. In contrast, the independent analysis sample was used to perform GWEIS and evaluate genotype-by-environment (GxE) interactions, including inference on causal direction and assessment of test-statistic inflation.</div>
 
-<div align="justify">Example datasets are provided in the ***data/*** directory. All datasets, including genotype data, phenotypes (outcome and exposure), and covariates, are simulated. These examples illustrate the causal directional analysis of G×E interaction effects:</div>
+<div align="justify">Example datasets are provided in the `Data/` directory. All datasets, including genotype data, phenotypes (outcome and exposure), and covariates, are simulated. These examples illustrate the causal directional analysis of G×E interaction effects:</div>
 
- **Trait 1 as the outcome and Trait 2 as the exposure**, and
+ #### 1. Proposed (hypothesized) direction: **Trait 1 as the outcome and Trait 2 as the exposure**, and
  
- **Trait 2 as the outcome and Trait 1 as the exposure**.
+ #### 1. Reverse (testing the other) direction: **Trait 2 as the outcome and Trait 1 as the exposure**.
 
 <div align="justify">They are intended to demonstrate how to correctly specify the input structure for each causal direction. In each case, the exposure variable should be defined within a dedicated data frame, along with any covariates included for adjustment in the model.</div>
  
@@ -88,7 +88,7 @@ If the exposure is binary, use PLINK’s default coding :
 
 ### Step 4. Running GWEIS analysis
 
-<div align="justify">GCIM-based analysis requires the exposure variable, which is automatically incorporated if Step 3 is followed. Alternatively, if the exposure variable (or PRS) is prepared externally, two input files must be provided: the outcome file (`trait1_analysis_out.txt`) and the exposure–covariate file (`trait2_analysis_cov.txt`). Both files must be plain text (`.txt`) with column headers and follow a strict column order.</div>
+<div align="justify">GCIM-based analysis requires the exposure variable, which is automatically incorporated if Step 3 is followed. Alternatively, if the exposure variable (or PRS) is prepared externally, two input files must be provided: the outcome file (`trait1_analysis_out.txt`) and the exposure-covariate file (`trait2_analysis_cov.txt`). Both files must be plain text (`.txt`) with column headers and follow a strict column order.</div>
 
 The outcome file `trait1_analysis_out.txt` should contain:
 
@@ -100,7 +100,7 @@ The exposure–covariate file `trait2_analysis_cov.txt` should contain:
 
 * FID
 * IID
-* PRS or trait2 (exposure variable)
+* PRS of trait2 (exposure variable)
 * `TDI, Age, pc1, ..., Covar_n`
 
 <div align="justify">In this framework, conventional GWEIS proceeds using the observed exposure variable directly for SNP × exposure interaction testing. In contrast, GCIM-based GWEIS replaces the observed exposure with its corresponding PRS, enabling interaction modelling based on genetically predicted exposure.</div>
@@ -115,7 +115,7 @@ The exposure–covariate file `trait2_analysis_cov.txt` should contain:
 
  ### Step 7. Adjusting Z-scores
  
-<div align="justify">If you follow the previous step, no additional input is required at this stage. However, if the LDSC intercept has already been computed and is available (with the intercept value located in the first row and first column), it should be imported and applied to the GWEIS results, restricted to the interaction component of GWEIS only.</div>
+<div align="justify">If you follow the previous step, no additional input is required at this stage. However, if the LDSC intercept has already been computed and is available (with the intercept value in the first row and first column), it should be imported and applied to the GWEIS results, restricted to the interaction component only.</div>
 
 _<div align="justify">***NB*** The reverse direction analysis follows the same input file format and structure as described above. The only difference is the switching of roles between the outcome and exposure variables. Specifically: The variable previously treated as the outcome is now used as the exposure, and the variable previously treated as the exposure is now used as the outcome.</div>_
 Example
@@ -131,7 +131,7 @@ All other components (genotype data, covariates, file structure, and coding conv
 library(GCIM.GWEIS.Z)
 # Setup paths
 plink <- "<plink_path>/plink2"
-hm3_snps <- "<path>/ldsc_chapter3/real_data/w_hm3.snplist"
+hm3_snps <- "<path>/w_hm3.snplist"
 ld_scores <- "<path>//eur_w_ld_chr/"
 
 # Step 1: PRS training sample for GWAS
