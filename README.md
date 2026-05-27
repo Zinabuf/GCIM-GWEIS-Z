@@ -24,6 +24,8 @@ This file contains the list of well-imputed HapMap3 SNPs commonly used for LDSC 
 #### 2. European LD-score reference directory: (`eur_w_ld_chr/`)
 This directory contains pre-computed LD scores for individuals of European ancestry, split by chromosome. It is used by `ldsc.py` to estimate the LDSC intercept.
 
+_Detailed instructions for downloading and preparing `w_hm3.snplist` and `eur_w_ld_chr/` reference files are available from the official [LDSC](https://github.com/bulik/LDSC) GitHub repository and associated [LDSC Wiki](https://github.com/bulik/ldsc/wiki) tutorials._
+
 # 2. Load the library
 
 ~~~
