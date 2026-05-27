@@ -109,11 +109,11 @@ The exposure–covariate file `trait2_analysis_cov.txt` should contain:
 
 ### Step 5. Munging for LDSC
 
-<div align="justify">If you follow the previous step to prepare HapMap SNPs and specify the LDSC paths for the munging process, this step can be executed as part of the pipeline. However, if munged summary statistics are already available, this step can be skipped.</div> 
+<div align="justify">If you follow the previous step to prepare HapMap SNPs (`w_hm3.snplist`) and specify the LDSC paths for the munging process, this step can be executed as part of the pipeline. However, if munged summary statistics are already available, this step can be skipped.</div> 
 
 ### Step 6. Computing LDSC intercept
 
-<div align="justify">If you follow the previous step to prepare LD score reference files and specify the LDSC paths for heritability estimation, this step can be executed within the pipeline. However, if the LDSC intercept has already been computed and is available (with the intercept value located in the first row and first column), this step can be skipped and the workflow can proceed directly to the next step.</div>
+<div align="justify">If you follow the previous step to prepare LD score reference files (`eur_w_ld_chr/`) and specify the LDSC paths for heritability estimation, this step can be executed within the pipeline. However, if the LDSC intercept has already been computed and is available (with the intercept value located in the first row and first column), this step can be skipped and the workflow can proceed directly to the next step.</div>
 
  ### Step 7. Adjusting Z-scores
  
