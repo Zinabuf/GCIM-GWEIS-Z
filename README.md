@@ -134,7 +134,7 @@ library(GCIM.GWEIS.Z)
 # Setup paths
 plink <- "<plink_path>/plink2"
 hm3_snps <- "<path>/w_hm3.snplist"
-ld_scores <- "<path>//eur_w_ld_chr/"
+ld_scores <- "<path>/eur_w_ld_chr/"
 
 # Step 1: PRS training sample for GWAS
 cat("Step 1: Running discovery GWAS...\n")
