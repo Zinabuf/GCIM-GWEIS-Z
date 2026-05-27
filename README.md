@@ -130,6 +130,7 @@ All other components (genotype data, covariates, file structure, and coding conv
 ## 4.1. Quantitative Outcomes with Quantitative Exposures 
 
 ~~~
+# Load library
 library(GCIM.GWEIS.Z)
 # # Setup paths to external software and LDSC reference files
 plink <- "<plink_path>/plink2"
@@ -294,6 +295,7 @@ Genome-wide significance threshold(p < 5e-8):
 ## 4.2. Binary Outcomes with Quantitative Exposures 
 
 ~~~
+# Load library
 library(GCIM.GWEIS.Z)
 # Setup paths to external software and LDSC reference files
 plink <- "<path>/plink2"
