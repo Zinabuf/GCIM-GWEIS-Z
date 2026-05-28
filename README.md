@@ -132,7 +132,7 @@ All other components (genotype data, covariates, file structure, and coding conv
 ~~~
 # Load library
 library(GCIM.GWEIS.Z)
-# # Setup paths to external software and LDSC reference files
+# Setup paths to external software and LDSC reference files
 plink <- "<plink_path>/plink2"
 hm3_snps <- "<path>/w_hm3.snplist"
 ld_scores <- "<path>/eur_w_ld_chr/"
@@ -149,8 +149,7 @@ gwas_res <- q_gwas(
 )
 
 # Step 2: Compute PRS in the analysis sample
-# The GWAS results from Step 1 are used to calculate the exposure PRS
-# in the independent analysis sample.
+# The GWAS results from Step 1 are used to calculate the exposure PRS in the independent analysis sample.
 cat("Step 2: Computing PRS in target...\n")
 prs_res <- prs_scores(
   plink_path = plink,
@@ -190,7 +189,6 @@ write.table(glm_df, file = "trait1_out_q_gcim_gweis.txt", col.names = TRUE, row.
 # Step 5: Munge GCIM-GWEIS summary statistics for LDSC
 # This prepares the GCIM-GWEIS summary statistics for LDSC analysis.
 # The HapMap3 SNP list is used to restrict the analysis to high-quality SNPs.
-# Step 5: Munge for LDSC
 cat("Step 5: Munging for LDSC...\n")
 munge_res <- munge_ldsc_gcim(
   munge_path  = "<path>/ldsc/munge_sumstats.py",
@@ -219,7 +217,6 @@ final_res <- gcim_z_adjust(
 )
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
 # Save the final GCIM-GWEIS-Z adjusted output
-zdf <- read.table(final_res$output_file, header = TRUE, stringsAsFactors = FALSE)
 file.copy(final_res$output_file, "trait1_out_q_gcim_gweis-z.txt", overwrite = TRUE)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
 ~~~
@@ -383,7 +380,6 @@ final_res <- gcim_z_adjust(
 )
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
 # Save the final GCIM-GWEIS-Z adjusted output
-zdf <- read.table(final_res$output_file, header = TRUE, stringsAsFactors = FALSE)
 file.copy(final_res$output_file, "trait1_out_b_gcim_gweis-z.txt", overwrite = TRUE)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
 ~~~
