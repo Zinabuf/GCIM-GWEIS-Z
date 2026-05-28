@@ -1,25 +1,13 @@
+# Load library
 library(GCIM.GWEIS.Z)
-# Setup paths
-plink <- "/data/alh-admzw/bscaling/basic_sim/plink2"
-munge_path <- "/data/alh-admzw/ldsc/munge_sumstats.py"
-python     <- "/data/alh-admzw/anaconda3/envs/ldsc/bin/python"
 
-#munge_path <- "/home/567/zw6700/ldsc/munge_sumstats.py"
-ldsc_path <- "/data/alh-admzw/ldsc/ldsc.py"
-hm3_snps <- "/data/alh-admzw/ldsc_chapter3/real_data/w_hm3.snplist"
-ld_scores <- "/data/alh-admzw/ldsc_chapter3/real_data/eur_w_ld_chr/"
-python <- "/data/alh-admzw/anaconda3"
-# Discovery data
-dis_geno <- "/data/alh-admzw/ldsc_chapter3/real_data/large_target/revised/true/bil_bmi/package/toydata/mydata.dis"
-#dis_pheno <- "/scratch/ny48/zw6700/Chpater_3/null.corr/scaled/null_corr_rxe05/g08/g8r8/phend"
+# Setup paths to external software and LDSC reference files
+plink <- "<plink_path>/plink2"
+hm3_snps <- "<path>/w_hm3.snplist"
+ld_scores <- "<path>/eur_w_ld_chr/"
 
-# Target data
-tar_geno <- "/data/alh-admzw/ldsc_chapter3/real_data/large_target/revised/true/bil_bmi/package/toydata/mydata.tar"
-#tar_pheno <- "/scratch/ny48/zw6700/Chpater_3/null.corr/scaled/null_corr_rxe05/g08/g8r8/phent"
-#tar_covar <- "/scratch/ny48/zw6700/Chpater_3/null.corr/scaled/null_corr_rxe05/g08/g8r8/covt"
-
-
-# Step 4: GWEIS
+# Step 4: Run conventional GWEIS
+# This tests SNP-by-Environmental exposure interaction effects on the outcome trait.
 cat("Step 4: Running GWEIS...\n")
 gweis_res <- q_gweis(
   plink_path = plink,
@@ -30,12 +18,14 @@ gweis_res <- q_gweis(
   threads = 40
 )
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
+# Save the conventional GWEIS output file(optional)
 glm_df <- read.table(gweis_res$glm_file, header = TRUE, comment.char = "", stringsAsFactors = FALSE)
 write.table(glm_df, file = "trait1_out_q_gweis.txt", col.names = TRUE, row.names = FALSE, quote = FALSE, sep = "\t")
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
 
-#write.table(gweis_res, "gcimt1.PHENO1.glm.linear", quote = F, row.names = F, sep = " ")
-# Step 5: Munge for LDSC
+# Step 5: Munge conventioal GWEIS summary statistics for LDSC
+# This prepares the conventional GWEIS summary statistics for LDSC analysis.
+# The HapMap3 SNP list is used to restrict the analysis to high-quality SNPs.
 cat("Step 5: Munging for LDSC...\n")
 munge_res <- munge_ldsc_gcim(
   munge_path  = "/data/alh-admzw/ldsc/munge_sumstats.py",
@@ -43,7 +33,10 @@ munge_res <- munge_ldsc_gcim(
   hm3_snplist = hm3_snps,
   python      = "/data/alh-admzw/anaconda3/envs/ldsc/bin/python"
 )
-# Step 6: LDSC heritability
+
+# Step 6: Estimate the LDSC intercept
+# LDSC is used to estimate the intercept of the conventional GWEIS test statistics.
+# This intercept captures inflation in the genome-wide test statistics.
 cat("Step 6: Computing LDSC intercept...\n")
 ldsc_res <- ldsc_h2_gcim(
   ldsc_path = "/data/alh-admzw/ldsc/ldsc.py",
@@ -52,15 +45,16 @@ ldsc_res <- ldsc_h2_gcim(
   ref_ld_chr = ld_scores
 )
 
-# Step 7: Adjust Z-scores
+# Step 7: Adjust conventional GWEIS Z-scores
+# The conventional GWEIS Z-statistics are divided by the square root of the LDSC intercept.
+# This produces the final GWEIS-Z results with corrected test statistics.
 cat("Step 7: Adjusting Z-scores...\n")
 final_res <- gcim_z_adjust(
   glm_file = gweis_res,
   intercept_file = ldsc_res
 )
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
-# fully adjusted outputs 
-zdf <- read.table(final_res$output_file, header = TRUE, stringsAsFactors = FALSE)
+# Save the final GWEIS-Z adjusted output
 file.copy(final_res$output_file, "trait1_out_q_gweis-z.txt", overwrite = TRUE)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
 # Report final results
