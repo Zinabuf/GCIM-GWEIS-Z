@@ -1,7 +1,6 @@
 # Load library
 library(GCIM.GWEIS.Z)
 
-# Setup paths
 # Setup paths to external software and LDSC reference files
 plink <- "<plink_path>/plink2"
 hm3_snps <- "<path>/w_hm3.snplist"
@@ -24,7 +23,7 @@ glm_df <- read.table(gweis_res$glm_file, header = TRUE, comment.char = "", strin
 write.table(glm_df, file = "trait1_out_b_gweis.txt", col.names = TRUE, row.names = FALSE, quote = FALSE, sep = "\t")
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
 
-# Step 5: Munge conventioal GWEIS summary statistics for LDSC
+# Step 5: Munge conventional GWEIS summary statistics for LDSC
 # This prepares the conventional GWEIS summary statistics for LDSC analysis.
 # The HapMap3 SNP list is used to restrict the analysis to high-quality SNPs.
 cat("Step 5: Munging for LDSC...\n")
