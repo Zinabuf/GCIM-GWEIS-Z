@@ -53,7 +53,6 @@ final_res <- gcim_z_adjust(
 )
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
 # fully adjusted outputs 
-zdf <- read.table(final_res$output_file, header = TRUE, stringsAsFactors = FALSE)
 file.copy(final_res$output_file, "trait1_out_b_gweis-z.txt", overwrite = TRUE)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
 # Report final results
