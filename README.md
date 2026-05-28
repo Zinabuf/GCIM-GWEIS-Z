@@ -63,6 +63,8 @@ Example files are provided in the data/ directory:
 `mydata.analysis.bim`
 `mydata.analysis.fam`
 
+_Example datasets and template input files used in the GCIM-GWEIS-Z workflow are available in the `Data/` directory of this GitHub repository. Users can download these files directly from the repository and update the corresponding file paths in the R scripts to verify that the workflow and installation are functioning correctly._
+
 ## 3.2. Steps for the analysis pipeline
 <div align="justify">If the required intermediate results from prior analyses are already available, the pipeline can be initiated at any appropriate step. For example, to evaluate inflation in existing GWEIS results, the workflow can begin at Step 5, Step 6, or Step 7, depending on the specific inputs available from previous analyses.</div>
 
