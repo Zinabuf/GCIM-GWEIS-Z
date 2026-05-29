@@ -184,7 +184,7 @@ gweis_res <- q_gweis(
 )
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
 # Save the GCIM-GWEIS output file(optional)
-glm_df <- read.table(gweis_res$glm_file, header = TRUE, comment.char = "", stringsAsFactors = FALSE)
+glm_df <- read.table(gweis_res$glm_file, header = TRUE, comment.char = "", stringsAsFactors = FALSE) 
 write.table(glm_df, file = "trait1_out_q_gcim_gweis.txt", col.names = TRUE, row.names = FALSE, quote = FALSE, sep = "\t")
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
 
@@ -219,6 +219,7 @@ final_res <- gcim_z_adjust(
 )
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
 # Save the final GCIM-GWEIS-Z adjusted output
+zdf <- read.table(final_res$output_file, header = TRUE, comment.char  = "",  sep = "\t", stringsAsFactors = FALSE) # Note:The output files use `#` in the header line. Since R treats `#` as a comment character by default, the files may not be read correctly unless the argument `comment.char = ""` is specified when reading the output file.
 file.copy(final_res$output_file, "trait1_out_q_gcim_gweis-z.txt", overwrite = TRUE)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
 ~~~
@@ -382,6 +383,7 @@ final_res <- gcim_z_adjust(
 )
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
 # Save the final GCIM-GWEIS-Z adjusted output
+zdf <- read.table(final_res$output_file, header = TRUE, comment.char  = "",  sep = "\t", stringsAsFactors = FALSE) # Note:The output files use `#` in the header line. Since R treats `#` as a comment character by default, the files may not be read correctly unless the argument `comment.char = ""` is specified when reading the output file.
 file.copy(final_res$output_file, "trait1_out_b_gcim_gweis-z.txt", overwrite = TRUE)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
 ~~~
