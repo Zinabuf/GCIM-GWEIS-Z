@@ -219,7 +219,7 @@ final_res <- gcim_z_adjust(
 )
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
 # Save the final GCIM-GWEIS-Z adjusted output
-zdf <- read.table(final_res$output_file, header = TRUE, comment.char  = "",  sep = "\t", stringsAsFactors = FALSE) # Note:The output files use `#` in the header line. Since R treats `#` as a comment character by default, the files may not be read correctly unless the argument `comment.char = ""` is specified when reading the output file.
+zdf <- read.table(final_res$output_file, header = TRUE, sep = "\t", stringsAsFactors = FALSE) 
 file.copy(final_res$output_file, "trait1_out_q_gcim_gweis-z.txt", overwrite = TRUE)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
 ~~~
@@ -383,7 +383,7 @@ final_res <- gcim_z_adjust(
 )
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~###
 # Save the final GCIM-GWEIS-Z adjusted output
-zdf <- read.table(final_res$output_file, header = TRUE, comment.char  = "",  sep = "\t", stringsAsFactors = FALSE) # Note:The output files use `#` in the header line. Since R treats `#` as a comment character by default, the files may not be read correctly unless the argument `comment.char = ""` is specified when reading the output file.
+zdf <- read.table(final_res$output_file, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
 file.copy(final_res$output_file, "trait1_out_b_gcim_gweis-z.txt", overwrite = TRUE)
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#####
 ~~~
