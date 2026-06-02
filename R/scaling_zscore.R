@@ -277,6 +277,10 @@ gcim_z_adjust <- function(glm_file,
   n_sig_original_genome_wide_threshold <- sum(a$P < 5e-8, na.rm = TRUE)
   n_sig_adjusted_genome_wide_threshold <- sum(a$p_value_int_adj < 5e-8, na.rm = TRUE)
 
+# ---- Rename PLINK chromosome column ----
+if ("#CHROM" %in% names(a)) {
+  names(a)[names(a) == "#CHROM"] <- "CHROM"
+}
 
   # ---- Save full adjusted output ----
   output_path <- file.path(tmp_dir, out_file)
